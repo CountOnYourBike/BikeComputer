@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.exit:
                         Toast.makeText(MainActivity.this, R.string.exit, Toast.LENGTH_SHORT).show();
+                        finish();
                         break;
                 }
                 return true;
