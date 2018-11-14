@@ -1,5 +1,9 @@
 package databinding.android.vogella.com.bikecounter;
 
+import android.bluetooth.BluetoothManager;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
@@ -25,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         initViewObject();
     }
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         return mActionBarDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
@@ -49,12 +52,18 @@ public class MainActivity extends AppCompatActivity {
                 switch (id) {
                     case R.id.profile:
                         Toast.makeText(MainActivity.this, R.string.profile, Toast.LENGTH_SHORT).show();
+                        break;
                     case R.id.settings:
                         Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
+                        break;
                     case R.id.configuration:
                         Toast.makeText(MainActivity.this, R.string.configuration, Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(MainActivity.this, DeviceScanActivity.class);
+                        startActivity(intent);
+                        break;
                     case R.id.exit:
                         Toast.makeText(MainActivity.this, R.string.exit, Toast.LENGTH_SHORT).show();
+                        break;
                 }
                 return true;
             }
