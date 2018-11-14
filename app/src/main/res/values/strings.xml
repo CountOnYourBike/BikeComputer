@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">BikeCounter</string>
-    <string name="profile">Profil</string>
-    <string name="settings">Ustawienia</string>
-    <string name="configuration">Konfiguracja</string>
-    <string name="exit">Wyjdź</string>
-    <string name="open">Otwórz</string>
-    <string name="close">Zamknij</string>
+    <string name="app_name" translatable="false">Bike Counter</string>
+    <string name="profile">Profile</string>
+    <string name="settings">Settings</string>
+    <string name="configuration">Configuration</string>
+    <string name="exit">Exit</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>
