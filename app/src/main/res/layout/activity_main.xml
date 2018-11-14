@@ -22,13 +22,11 @@
         android:layout_margin="3dp"
         android:background="@color/colorGreen"
         >
-        <LinearLayout
+<!--        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="3dp"
-            android:background="@color/colorBlue">
-
-        </LinearLayout>
+            android:background="@color/colorBlue" />-->
     </GridView>
     <TextView
         android:layout_width="wrap_content"
