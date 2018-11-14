@@ -6,4 +6,9 @@
     <string name="exit">Wyjdź</string>
     <string name="open">Otwórz</string>
     <string name="close">Zamknij</string>
+    <string name="scan">Skanuj</string>
+    <string name="stop_scan">Zatrzymaj</string>
+    <string name="ble_not_supported">BLE nie wspierany</string>
+    <string name="error_bluetooth_not_supported">Bluetooth nie wspierany</string>
+    <string name="unknown_device">Unknown device</string>
 </resources>
