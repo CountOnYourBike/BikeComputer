@@ -9,6 +9,11 @@
     <string name="scan">Skanuj</string>
     <string name="stop_scan">Zatrzymaj</string>
     <string name="ble_not_supported">BLE nie wspierany</string>
-    <string name="error_bluetooth_not_supported">Bluetooth nie wspierany</string>
-    <string name="unknown_device">Unknown device</string>
+    <string name="error_bluetooth_not_supported">Bluetooth nie jest wspierany</string>
+    <string name="unknown_device">Nieznane urządzenie</string>
+    <string name="permission_needed">Wymagane pozwolenie</string>
+    <string name="location_permission_message">Dostęp do lokalizacji jest wymagany do odnalezienia urządzeń Bluetooth</string>
+    <string name="permission_granted">Udzielono dostępu</string>
+    <string name="permission_denied">Odmówiono dostępu</string>
+    <string name="app_name">Licznik Rowerowy</string>
 </resources>

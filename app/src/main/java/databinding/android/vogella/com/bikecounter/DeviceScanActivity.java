@@ -18,13 +18,19 @@ package databinding.android.vogella.com.bikecounter;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -37,15 +43,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
+import java.util.List;
 
-import static android.support.v7.widget.RecyclerView.*;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
@@ -55,15 +60,16 @@ public class DeviceScanActivity extends Activity {
     private BluetoothLeService mBluetoothLeService;
     private BluetoothAdapter mBTAdapter;
     private LeDeviceListAdapter mBTArrayAdapter;
-    private String[] mDevices;
-    private String mDeviceName;
     private String mDeviceAddress;
     private boolean mConnected = false;
     private boolean mScanning;
     private Handler mHandler;
     private ListView mDevicesListView;
+    private Button button_scan;
+    private Button button_stop;
 
     private static final int REQUEST_ENABLE_BT = 1;
+    private static final int REQUEST_LOCATION_PERMISSION = 2;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
@@ -78,6 +84,10 @@ public class DeviceScanActivity extends Activity {
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mHandler = new Handler();
 
+        button_scan = findViewById(R.id.button_scan);
+        button_stop = findViewById(R.id.button_stop);
+
+
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -85,18 +95,17 @@ public class DeviceScanActivity extends Activity {
             finish();
         }
 
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
+        // checking permission for location services
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION))
+                        showExplanation(getString(R.string.permission_needed), getString(R.string.location_permission_message), Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION);
+            else
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+        }
 
-
-        // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
-        // BluetoothAdapter through BluetoothManager.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        //mBluetoothAdapter = bluetoothManager.getAdapter();
-        //TODO: Verify if we need above version (comment says that is only for API <= 18)
-        //mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
-        mBTAdapter = bluetoothManager.getAdapter();
+        // Initializes a Bluetooth adapter.
+        mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
 
         // Checks if Bluetooth is supported on the device.
@@ -105,7 +114,41 @@ public class DeviceScanActivity extends Activity {
             finish();
             return;
         }
+
+        button_scan.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                scanLeDevice(true);
+            }
+        });
+
+        button_stop.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                scanLeDevice(false);
+            }
+        });
+
         scanLeDevice(true);
+    }
+
+    // function to build an alert explaining needed permission(s)
+    private void showExplanation(String title,
+                                 String message,
+                                 final String permission,
+                                 final int permissionRequestCode) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        requestPermission(permission, permissionRequestCode);
+                    }
+                });
+        builder.create().show();
+    }
+
+    private void requestPermission(String permissionName, int permissionRequestCode) {
+        ActivityCompat.requestPermissions(this,
+                new String[]{permissionName}, permissionRequestCode);
     }
 
     // Code to manage Service lifecycle.
@@ -162,6 +205,26 @@ public class DeviceScanActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
+                } else {
+                    // permission denied
+                    finish();
+                    Toast.makeText(getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            }
+        }
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
@@ -198,7 +261,7 @@ public class DeviceScanActivity extends Activity {
                 Log.d(TAG, "Disconnected");
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
-                //displayGattServices(mBluetoothLeService.getSupportedGattServices());
+                // displayGattServices(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 Log.d(TAG,"DATA: " + data);
@@ -207,50 +270,58 @@ public class DeviceScanActivity extends Activity {
         }
     };
 
+
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            stopScanning();
+        }
+    };
+
     private void scanLeDevice(final boolean enable) {
+
+        final BluetoothLeScanner bluetoothLeScanner = mBTAdapter.getBluetoothLeScanner();
+
         if (enable) {
             // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBTAdapter.stopLeScan(mLeScanCallback);
-                    //mBTAdapter.cancelDiscovery();
-                    invalidateOptionsMenu();
-                }
-            }, SCAN_PERIOD);
+            mHandler.postDelayed(runnable, SCAN_PERIOD);
 
-            mScanning = true;
-            mBTAdapter.startLeScan(mLeScanCallback);
-            //mBTAdapter.startDiscovery();
+            startScanning();
         } else {
-            mScanning = false;
-            mBTAdapter.stopLeScan(mLeScanCallback);
-            //mBTAdapter.cancelDiscovery();
+            stopScanning();
+            // it is removing activity created in mHandler.postDelayed
+            // as we don't want to stop new scanning 10 sec after old scan started
+            mHandler.removeCallbacks(runnable);
         }
-        invalidateOptionsMenu();
     }
 
     // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
+    private ScanCallback mLeScanCallback = new ScanCallback() {
 
         @Override
-        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-//                    mLeDeviceListAdapter.addDevice(device);
-//                    mLeDeviceListAdapter.notifyDataSetChanged();
-                    mBTArrayAdapter.addDevice(device);//.add(device.getName() + "\n" + device.getAddress());
-                    mBTArrayAdapter.notifyDataSetChanged();
-                }
-            });
+        public void onScanResult(int callbackType, ScanResult result) {
+            super.onScanResult(callbackType, result);
+            mBTArrayAdapter.addDevice(result.getDevice());
+            mBTArrayAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+            for(ScanResult r : results) {
+                mBTArrayAdapter.addDevice(r.getDevice());
+            }
+            mBTArrayAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
         }
     };
 
     private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
-        public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+        public void onItemClick(AdapterView<?> av, View v, int position, long id) {
 
             if(!mBTAdapter.isEnabled()) {
                 Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
@@ -258,24 +329,40 @@ public class DeviceScanActivity extends Activity {
             }
 
             //mBluetoothStatus.setText("Connecting...");
-            // Get the device MAC address, which is the last 17 chars in the View
-            String info = ((TextView) v).getText().toString();
-            final String address = info.substring(info.length() - 17);
-            final String name = info.substring(0,info.length() - 17);
+            BluetoothDevice selectedDevice = (BluetoothDevice)av.getItemAtPosition(position);
 
-            //TODO: Connecting to device
             Intent gattServiceIntent = new Intent(DeviceScanActivity.this, BluetoothLeService.class);
             bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
-            mDeviceName = name;
-            mDeviceAddress = address;
+            mDeviceAddress = selectedDevice.getAddress();
             if (mScanning) {
-                //mBTAdapter.cancelDiscovery();
-                mBTAdapter.stopLeScan(mLeScanCallback);
-                mScanning = false;
+                scanLeDevice(false);
             }
-            mBluetoothLeService.connect(mDeviceAddress);
+            //mBluetoothLeService.connect(mDeviceAddress);
+            // tu nie możemy jeszcze wykonać, bo service się jeszcze nie zawiązał i mBluetoothLeService nie zostało zainicjowane
+            // zamiast tego, wykonuje się on w metodzie onServiceConnected
         }
     };
+
+    private void stopScanning() {
+        if(mBTAdapter.getBluetoothLeScanner() != null)
+            mBTAdapter.getBluetoothLeScanner().stopScan(mLeScanCallback);
+        findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button_scan).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_stop).setVisibility(View.INVISIBLE);
+        mScanning = false;
+        invalidateOptionsMenu();
+    }
+
+    private void startScanning() {
+        mBTArrayAdapter.clear();
+        if(mBTAdapter.getBluetoothLeScanner() != null)
+            mBTAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
+        findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+        findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
+        findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
+        mScanning = true;
+        invalidateOptionsMenu();
+    }
     
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
@@ -283,7 +370,7 @@ public class DeviceScanActivity extends Activity {
 
         public LeDeviceListAdapter() {
             super();
-            mLeDevices = new ArrayList<BluetoothDevice>();
+            mLeDevices = new ArrayList<>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
         }
 
@@ -324,8 +411,8 @@ public class DeviceScanActivity extends Activity {
                 view = mInflator.inflate(R.layout.listitem_device, null);
                 viewHolder = new ViewHolder();
                 viewHolder.
-                        deviceAddress = (TextView) view.findViewById(R.id.device_address);
-                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                        deviceAddress = view.findViewById(R.id.device_address);
+                viewHolder.deviceName = view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) view.getTag();
