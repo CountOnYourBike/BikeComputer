@@ -33,23 +33,29 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+
+import static android.support.v7.widget.RecyclerView.*;
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
 public class DeviceScanActivity extends Activity {
     private static final String TAG = "DeviceScanActivity";
-    //private LeDeviceListAdapter mLeDeviceListAdapter;
-   // private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeService mBluetoothLeService;
     private BluetoothAdapter mBTAdapter;
-    private ArrayAdapter<String> mBTArrayAdapter;
+    private LeDeviceListAdapter mBTArrayAdapter;
+    private String[] mDevices;
     private String mDeviceName;
     private String mDeviceAddress;
     private boolean mConnected = false;
@@ -66,9 +72,8 @@ public class DeviceScanActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.configuration_layout);
 
-        mBTArrayAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1);
-
-        mDevicesListView = findViewById(R.id.devicesListView);
+        mBTArrayAdapter = new LeDeviceListAdapter();
+        mDevicesListView=findViewById(R.id.devicesListView);
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mHandler = new Handler();
@@ -187,7 +192,7 @@ public class DeviceScanActivity extends Activity {
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 Log.d(TAG, "Connected");
-                //invalidateOptionsMenu();
+                invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 Log.d(TAG, "Disconnected");
@@ -223,7 +228,7 @@ public class DeviceScanActivity extends Activity {
             mBTAdapter.stopLeScan(mLeScanCallback);
             //mBTAdapter.cancelDiscovery();
         }
-        //invalidateOptionsMenu();
+        invalidateOptionsMenu();
     }
 
     // Device scan callback.
@@ -237,7 +242,7 @@ public class DeviceScanActivity extends Activity {
                 public void run() {
 //                    mLeDeviceListAdapter.addDevice(device);
 //                    mLeDeviceListAdapter.notifyDataSetChanged();
-                    mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
+                    mBTArrayAdapter.addDevice(device);//.add(device.getName() + "\n" + device.getAddress());
                     mBTArrayAdapter.notifyDataSetChanged();
                 }
             });
@@ -271,4 +276,74 @@ public class DeviceScanActivity extends Activity {
             mBluetoothLeService.connect(mDeviceAddress);
         }
     };
+    
+    private class LeDeviceListAdapter extends BaseAdapter {
+        private ArrayList<BluetoothDevice> mLeDevices;
+        private LayoutInflater mInflator;
+
+        public LeDeviceListAdapter() {
+            super();
+            mLeDevices = new ArrayList<BluetoothDevice>();
+            mInflator = DeviceScanActivity.this.getLayoutInflater();
+        }
+
+        public void addDevice(BluetoothDevice device) {
+            if(!mLeDevices.contains(device)) {
+                mLeDevices.add(device);
+            }
+        }
+
+        public BluetoothDevice getDevice(int position) {
+            return mLeDevices.get(position);
+        }
+
+        public void clear() {
+            mLeDevices.clear();
+        }
+
+        @Override
+        public int getCount() {
+            return mLeDevices.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return mLeDevices.get(i);
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return i;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            ViewHolder viewHolder;
+            // General ListView optimization code.
+            if (view == null) {
+                view = mInflator.inflate(R.layout.listitem_device, null);
+                viewHolder = new ViewHolder();
+                viewHolder.
+                        deviceAddress = (TextView) view.findViewById(R.id.device_address);
+                viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
+                view.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) view.getTag();
+            }
+
+            BluetoothDevice device = mLeDevices.get(i);
+            final String deviceName = device.getName();
+            if (deviceName != null && deviceName.length() > 0)
+                viewHolder.deviceName.setText(deviceName);
+            else
+                viewHolder.deviceName.setText(R.string.unknown_device);
+            viewHolder.deviceAddress.setText(device.getAddress());
+
+            return view;
+        }
+    }
+    static class ViewHolder {
+        TextView deviceName;
+        TextView deviceAddress;
+    }
 }
