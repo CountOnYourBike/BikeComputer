@@ -355,6 +355,7 @@ public class DeviceScanActivity extends Activity {
 
     private void startScanning() {
         mBTArrayAdapter.clear();
+        mBTArrayAdapter.notifyDataSetChanged();
         if(mBTAdapter.getBluetoothLeScanner() != null)
             mBTAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
         findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
