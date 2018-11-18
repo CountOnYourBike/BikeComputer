@@ -281,7 +281,14 @@ public class DeviceScanActivity extends Activity {
                 }
                 if (gattService != null) {
                     BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(UUID.fromString(CSC_MEASUREMENT_CHARACTERISTICS));
-                    mBluetoothLeService.readCharacteristic(characteristic);
+                    final int characteristicProperties = characteristic.getProperties();
+                    if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        mBluetoothLeService.readCharacteristic(characteristic);
+                    }
+                    if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        mBluetoothLeService.setCharacteristicNotification(
+                                characteristic, true);
+                    }
                 }
                 else {
                     Toast.makeText(DeviceScanActivity.this, "That device does not support Cycling Speed and Cadence!", Toast.LENGTH_SHORT).show();
