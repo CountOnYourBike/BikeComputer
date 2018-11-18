@@ -232,7 +232,12 @@ public class DeviceScanActivity extends Activity {
         scanLeDevice(false);
         if(mBluetoothLeService != null)
             mBluetoothLeService.close();
-        unregisterReceiver(mGattUpdateReceiver);
+        try {
+            unregisterReceiver(mGattUpdateReceiver);
+        } catch (IllegalArgumentException e) {
+            // if the receiver is not registered
+            e.printStackTrace();
+        }
     }
 
     // Handles various events fired by the Service.
