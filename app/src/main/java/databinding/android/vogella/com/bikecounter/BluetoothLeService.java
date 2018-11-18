@@ -53,15 +53,17 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
+            "pl.edu.pg.eti.ksg.bikecounter.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
+            "pl.edu.pg.eti.ksg.bikecounter.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_CONNECTING =
+            "pl.edu.pg.eti.ksg.bikecounter.ACTION_GATT_CONNECTING";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+            "pl.edu.pg.eti.ksg.bikecounter.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
-            "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
+            "pl.edu.pg.eti.ksg.bikecounter.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
-            "com.example.bluetooth.le.EXTRA_DATA";
+            "pl.edu.pg.eti.ksg.bikecounter.EXTRA_DATA";
 
     public final static UUID UUID_CSC_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.CSC_MEASUREMENT);
@@ -73,6 +75,12 @@ public class BluetoothLeService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
+            if (newState == BluetoothProfile.STATE_CONNECTING) {
+                intentAction = ACTION_GATT_CONNECTING;
+                mConnectionState = STATE_CONNECTING;
+                broadcastUpdate(intentAction);
+                Log.i(TAG, "Connecting to GATT server.");
+            }
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;

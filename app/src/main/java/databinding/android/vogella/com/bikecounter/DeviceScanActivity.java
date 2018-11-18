@@ -250,13 +250,21 @@ public class DeviceScanActivity extends Activity {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+            if (BluetoothLeService.ACTION_GATT_CONNECTING.equals(action)) {
+                mConnected = false;
+                Log.d(TAG, "Connecting");
+                findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+                invalidateOptionsMenu();
+            } else if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 Log.d(TAG, "Connected");
+                findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 Log.d(TAG, "Disconnected");
+                findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Show all the supported services and characteristics on the user interface.
                 // displayGattServices(mBluetoothLeService.getSupportedGattServices());
