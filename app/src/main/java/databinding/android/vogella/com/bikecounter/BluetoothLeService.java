@@ -66,7 +66,7 @@ public class BluetoothLeService extends Service {
             "pl.edu.pg.eti.ksg.bikecounter.EXTRA_DATA";
 
     public final static UUID UUID_CSC_MEASUREMENT =
-            UUID.fromString(SampleGattAttributes.CSC_MEASUREMENT);
+            UUID.fromString(SampleGattAttributes.CSC_MEASUREMENT_CHARACTERISTICS);
 
 
     // Implements callback methods for GATT events that the app cares about.  For example,

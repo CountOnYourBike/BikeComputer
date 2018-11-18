@@ -21,8 +21,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.content.BroadcastReceiver;
@@ -48,8 +48,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import static databinding.android.vogella.com.bikecounter.SampleGattAttributes.*;
 
 
 /**
@@ -266,8 +270,22 @@ public class DeviceScanActivity extends Activity {
                 findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
-                // displayGattServices(mBluetoothLeService.getSupportedGattServices());
+                // Choose the CSC Measurement characteristics from all the supported services and characteristics
+                BluetoothGattService gattService = null;
+                List<BluetoothGattService> gattServiceList =  mBluetoothLeService.getSupportedGattServices();
+                for (BluetoothGattService service : gattServiceList) {
+                    if (service.getUuid().equals(CYCLING_SPEED_AND_CADENCE_SERVICE)) {
+                        gattService = service;
+                        break;
+                    }
+                }
+                if (gattService != null) {
+                    BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(UUID.fromString(CSC_MEASUREMENT_CHARACTERISTICS));
+                    mBluetoothLeService.readCharacteristic(characteristic);
+                }
+                else {
+                    Toast.makeText(DeviceScanActivity.this, "That device does not support Cycling Speed and Cadence!", Toast.LENGTH_SHORT).show();
+                }
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 Log.d(TAG,"DATA: " + data);
