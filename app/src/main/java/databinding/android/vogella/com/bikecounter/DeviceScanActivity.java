@@ -272,9 +272,6 @@ public class DeviceScanActivity extends Activity {
     };
 
     private void scanLeDevice(final boolean enable) {
-
-        final BluetoothLeScanner bluetoothLeScanner = mBTAdapter.getBluetoothLeScanner();
-
         if (enable) {
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(runnable, SCAN_PERIOD);
@@ -330,9 +327,9 @@ public class DeviceScanActivity extends Activity {
             if (mScanning) {
                 scanLeDevice(false);
             }
-            //mBluetoothLeService.connect(mDeviceAddress);
-            // tu nie możemy jeszcze wykonać, bo service się jeszcze nie zawiązał i mBluetoothLeService nie zostało zainicjowane
-            // zamiast tego, wykonuje się on w metodzie onServiceConnected
+            // first connect will be called in onServiceConnected method
+            if(mBluetoothLeService != null)
+                mBluetoothLeService.connect(mDeviceAddress);
         }
     };
 
