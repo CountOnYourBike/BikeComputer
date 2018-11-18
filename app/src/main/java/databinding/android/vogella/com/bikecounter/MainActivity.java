@@ -1,7 +1,9 @@
 package databinding.android.vogella.com.bikecounter;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
@@ -35,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViewObject(){
-        mDrawerLayout=(DrawerLayout)findViewById(R.id.activity_main);
+        mDrawerLayout = findViewById(R.id.activity_main);
         mActionBarDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
 
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
@@ -43,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 //        mActionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mNavigationView = (NavigationView)findViewById(R.id.navigation_view);
+        mNavigationView = findViewById(R.id.navigation_view);
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -62,8 +64,16 @@ public class MainActivity extends AppCompatActivity {
                         startActivity(intent);
                         break;
                     case R.id.exit:
-                        Toast.makeText(MainActivity.this, R.string.exit, Toast.LENGTH_SHORT).show();
-                        finish();
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle(getString(R.string.exit))
+                                .setMessage(getString(R.string.really_want_to_exit))
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int id) {
+                                        finishAndRemoveTask();
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.no, null);
+                        builder.create().show();
                         break;
                 }
                 return true;

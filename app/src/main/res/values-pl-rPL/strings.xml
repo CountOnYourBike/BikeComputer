@@ -16,4 +16,5 @@
     <string name="permission_granted">Udzielono dostępu</string>
     <string name="permission_denied">Odmówiono dostępu</string>
     <string name="app_name">Licznik Rowerowy</string>
+    <string name="really_want_to_exit">Czy na pewno chcesz wyjść?</string>
 </resources>

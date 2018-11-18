@@ -171,26 +171,10 @@ public class DeviceScanActivity extends Activity {
         }
     };
 
-
-/*    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        //TODO: Start scanning only on button click and then show progress bar
-            case R.id.menu_scan:
-                mLeDeviceListAdapter.clear();
-                scanLeDevice(true);
-                break;
-            case R.id.menu_stop:
-                scanLeDevice(false);
-                break;
-        }
-        return true;
-    }*/
-
     @Override
     protected void onResume() {
         super.onResume();
-
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!mBTAdapter.isEnabled()) {
@@ -239,7 +223,16 @@ public class DeviceScanActivity extends Activity {
         super.onPause();
         scanLeDevice(false);
         mBTArrayAdapter.clear();
-        //mLeDeviceListAdapter.clear();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        scanLeDevice(false);
+        if(mBluetoothLeService != null)
+            mBluetoothLeService.close();
+        unregisterReceiver(mGattUpdateReceiver);
     }
 
     // Handles various events fired by the Service.
@@ -265,11 +258,11 @@ public class DeviceScanActivity extends Activity {
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 Log.d(TAG,"DATA: " + data);
+                //TODO: Manage incoming data
                 //displayData());
             }
         }
     };
-
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -433,5 +426,15 @@ public class DeviceScanActivity extends Activity {
     static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
+    }
+
+    // make filter to find only this intents with broadcast receiver
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 }
