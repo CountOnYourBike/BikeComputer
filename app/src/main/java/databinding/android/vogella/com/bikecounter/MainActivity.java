@@ -73,6 +73,9 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (id) {
                     case R.id.profile:
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, Profile.newInstance())
+                                .commitNow();
                         Toast.makeText(MainActivity.this, R.string.profile, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.settings:

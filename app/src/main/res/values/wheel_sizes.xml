@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="wheelsizes">
+        <item>First</item>
+        <item>Secoud</item>
+        <item>Third</item>
+
+    </string-array>
+
+</resources>
