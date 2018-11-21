@@ -16,4 +16,6 @@
     <string name="permission_granted">Permission granted</string>
     <string name="permission_denied">Permission denied</string>
     <string name="really_want_to_exit">Do you really want to exit?</string>
+    <string name="csc_not_supported">That device does not support Cycling Speed and Cadence Service!</string>
+    <string name="connected">Successfully connected</string>
 </resources>

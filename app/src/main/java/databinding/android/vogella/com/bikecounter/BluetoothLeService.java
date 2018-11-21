@@ -136,12 +136,10 @@ public class BluetoothLeService extends Service {
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
         if (UUID_CSC_MEASUREMENT.equals(characteristic.getUuid())) {
-            final int numberOfRevs = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 1);
-            Log.d(TAG, String.format("Number of revs: %d", numberOfRevs));
-            final int wheelEventTime = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 5);
-            Log.d(TAG, String.format("wheel event time: %d", wheelEventTime));
-            final double speed = numberOfRevs*(2*Math.PI*0.3)*1000/wheelEventTime;
-            intent.putExtra(EXTRA_DATA, String.valueOf(Math.floor(speed*100)/100));
+            final Integer numberOfRevs = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 1);
+            final Integer wheelEventTime = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 5);
+            Measurement measurement = new Measurement(numberOfRevs, wheelEventTime);
+            intent.putExtra(EXTRA_DATA, measurement.toString());
         } else {
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();

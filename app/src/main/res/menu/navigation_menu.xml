@@ -2,24 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-    <item
-        android:id="@+id/profile"
-        android:title="@string/profile"
-        android:icon="@drawable/ic_person_black_24dp">
-    </item>
-    <item
-        android:id="@+id/settings"
-        android:title="@string/settings"
-        android:icon="@drawable/ic_settings_black_24dp">
-    </item>
-    <item
-        android:id="@+id/configuration"
-        android:title="@string/configuration"
-        android:icon="@drawable/ic_bluetooth_black_24dp">
-    </item>
-    <item
-        android:id="@+id/exit"
-        android:title="@string/exit"
-        android:icon="@drawable/ic_close_black_24dp">
-    </item>
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/profile"
+            android:title="@string/profile"
+            android:icon="@drawable/ic_person_black_24dp">
+        </item>
+        <item
+            android:id="@+id/settings"
+            android:title="@string/settings"
+            android:icon="@drawable/ic_settings_black_24dp">
+        </item>
+        <item
+            android:id="@+id/configuration"
+            android:title="@string/configuration"
+            android:icon="@drawable/ic_bluetooth_black_24dp">
+        </item>
+        <item
+            android:id="@+id/exit"
+            android:title="@string/exit"
+            android:icon="@drawable/ic_close_black_24dp">
+        </item>
+    </group>
 </menu>

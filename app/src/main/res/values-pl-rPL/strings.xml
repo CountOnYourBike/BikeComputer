@@ -17,4 +17,6 @@
     <string name="permission_denied">Odmówiono dostępu</string>
     <string name="app_name">Licznik Rowerowy</string>
     <string name="really_want_to_exit">Czy na pewno chcesz wyjść?</string>
+    <string name="csc_not_supported">Docelowe urządzenie nie wspiera serwisu pomiaru prędkości i kadencji!</string>
+    <string name="connected">Połączono</string>
 </resources>

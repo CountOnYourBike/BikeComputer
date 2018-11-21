@@ -274,7 +274,7 @@ public class DeviceScanActivity extends Activity {
                 BluetoothGattService gattService = null;
                 List<BluetoothGattService> gattServiceList =  mBluetoothLeService.getSupportedGattServices();
                 for (BluetoothGattService service : gattServiceList) {
-                    if (service.getUuid().equals(CYCLING_SPEED_AND_CADENCE_SERVICE)) {
+                    if (service.getUuid().toString().equals(CYCLING_SPEED_AND_CADENCE_SERVICE)) {
                         gattService = service;
                         break;
                     }
@@ -289,13 +289,15 @@ public class DeviceScanActivity extends Activity {
                         mBluetoothLeService.setCharacteristicNotification(
                                 characteristic, true);
                     }
+                    Toast.makeText(DeviceScanActivity.this, getString(R.string.connected), Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    Toast.makeText(DeviceScanActivity.this, "That device does not support Cycling Speed and Cadence!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(DeviceScanActivity.this, getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();
                 }
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                Log.d(TAG,"DATA: " + data);
+                Measurement measurement = Measurement.fromString(data);
+                Log.d(TAG, "Speed: " + measurement.getSpeed());
                 //TODO: Manage incoming data
                 //displayData());
             }

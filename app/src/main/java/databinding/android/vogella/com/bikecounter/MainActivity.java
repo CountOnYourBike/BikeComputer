@@ -1,18 +1,15 @@
 package databinding.android.vogella.com.bikecounter;
 
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -28,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //placeHolder = findViewById(R.id.activity_main);
+
         initViewObject();
     }
 
@@ -35,6 +34,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         return mActionBarDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.navigation_menu, menu);
+        return true;
+    }
+
+
 
     private void initViewObject(){
         mDrawerLayout = findViewById(R.id.activity_main);
@@ -51,6 +59,11 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
 
+                menuItem.setChecked(true);
+                // close drawer when item is tapped
+                mDrawerLayout.closeDrawers();
+
+
                 switch (id) {
                     case R.id.profile:
                         Toast.makeText(MainActivity.this, R.string.profile, Toast.LENGTH_SHORT).show();
@@ -59,8 +72,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
-                        Toast.makeText(MainActivity.this, R.string.configuration, Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(MainActivity.this, DeviceScanActivity.class);
+                        //getLayoutInflater().inflate(R.layout.configuration_layout, placeHolder);
                         startActivity(intent);
                         break;
                     case R.id.exit:
