@@ -28,6 +28,13 @@ public class MainActivity extends AppCompatActivity {
         //placeHolder = findViewById(R.id.activity_main);
 
         initViewObject();
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance())
+                    .commitNow();
+        }
+
     }
 
     @Override
