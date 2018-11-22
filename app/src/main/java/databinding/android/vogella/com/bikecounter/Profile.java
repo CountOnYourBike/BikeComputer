@@ -37,7 +37,13 @@ public class Profile extends Fragment implements AdapterView.OnItemSelectedListe
                 String selected = parent.getItemAtPosition(position).toString();
                 Context context = parent.getContext();
 
-                Toast toast = Toast.makeText(context, selected, Toast.LENGTH_SHORT);
+
+                String ETRTO_system, InchOrMetricSystem , Circuit;
+                ETRTO_system = selected.split(" | ")[0];
+                InchOrMetricSystem = selected.split(" | ")[2];
+                Circuit = selected.split(" | ")[4];
+
+                Toast toast = Toast.makeText(context, Circuit+"mm", Toast.LENGTH_SHORT);
                 toast.show();
             }
 
