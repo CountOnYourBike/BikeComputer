@@ -12,27 +12,16 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Wybierz rozmiar koła" />
+            android:text="@string/wheelSize" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/systemsWheelSize" />
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
     </LinearLayout>
-    <!--
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="507dp"
-        android:gravity="top"
-        android:text="Profil" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Profil2qqq"
-        android:gravity="top"
-        />
--->
-
 
 </FrameLayout>

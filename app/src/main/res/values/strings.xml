@@ -18,4 +18,6 @@
     <string name="really_want_to_exit">Do you really want to exit?</string>
     <string name="csc_not_supported">That device does not support Cycling Speed and Cadence Service!</string>
     <string name="connected">Successfully connected</string>
+    <string name="wheelSize">Wheel size</string>
+    <string name="systemsWheelSize">ETRTO system | Inch/metric system(french) | Circuit</string>
 </resources>
