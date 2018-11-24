@@ -33,9 +33,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -63,8 +65,8 @@ import static databinding.android.vogella.com.bikecounter.SampleGattAttributes.*
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
-public class DeviceScanActivity extends Fragment {
-    private static final String TAG = "DeviceScanActivity";
+public class DeviceScanFragment extends Fragment {
+    private static final String TAG = "DeviceScanFragment";
     private BluetoothLeService mBluetoothLeService;
     private BluetoothAdapter mBTAdapter;
     private LeDeviceListAdapter mBTArrayAdapter;
@@ -77,20 +79,20 @@ public class DeviceScanActivity extends Fragment {
     private Button button_stop;
     private View mView;
 
-    private static final int REQUEST_ENABLE_BT = 1;
-    private static final int REQUEST_LOCATION_PERMISSION = 2;
+    public static final int REQUEST_ENABLE_BT = 1;
+    public static final int REQUEST_LOCATION_PERMISSION = 2;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
-    public static DeviceScanActivity newInstance() {
-        return new DeviceScanActivity();
+    public static DeviceScanFragment newInstance() {
+        return new DeviceScanFragment();
     }
 
     @Override
     public View onCreateView (@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
     @Nullable Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.configuration_fragment, container, false);
 
+        mView = inflater.inflate(R.layout.configuration_fragment, container, false);
 
         mBTArrayAdapter = new LeDeviceListAdapter();
         mDevicesListView=mView.findViewById(R.id.devicesListView);
@@ -102,11 +104,11 @@ public class DeviceScanActivity extends Fragment {
         button_stop = mView.findViewById(R.id.button_stop);
 
 
-        // Use this check to determine whether BLE is supported on the device.  Then you can
-        // selectively disable BLE-related features.
+        // Use this check to determine whether BLE is supported on the device.
         if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            getActivity().finish();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance()).commitNow();
         }
 
         // checking permission for location services
@@ -118,6 +120,8 @@ public class DeviceScanActivity extends Fragment {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
         }
 
+
+
         // Initializes a Bluetooth adapter.
         mBTAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -125,7 +129,8 @@ public class DeviceScanActivity extends Fragment {
         // Checks if Bluetooth is supported on the device.
         if (mBTAdapter == null) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
-            getActivity().finish();
+            getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance()).commitNow();
             return mView;
         }
 
@@ -140,9 +145,42 @@ public class DeviceScanActivity extends Fragment {
                 scanLeDevice(false);
             }
         });
-
-        scanLeDevice(true);
         return mView;
+    }
+
+    private void checkIfLocationIsEnabled() {
+        LocationManager lm = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+        boolean gps_enabled;
+        boolean network_enabled;
+
+        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        if(!gps_enabled && !network_enabled) {
+            // notify user
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+            dialog.setMessage(getString(R.string.location_needed_for_searching_devices));
+            dialog.setPositiveButton(getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    // TODO Auto-generated method stub
+                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    getActivity().startActivityForResult(myIntent, REQUEST_LOCATION_PERMISSION);
+                }
+            });
+            dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                    // check if user didn't turned it
+                    LocationManager lm = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+                    if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) &&
+                    !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+                        Toast.makeText(getContext(), getString(R.string.location_disabled_nothing_will_be_found), Toast.LENGTH_SHORT).show();
+                }
+            });
+            dialog.show();
+        }
     }
 
     // function to build an alert explaining needed permission(s)
@@ -150,7 +188,7 @@ public class DeviceScanActivity extends Fragment {
                                  String message,
                                  final String permission,
                                  final int permissionRequestCode) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -174,7 +212,8 @@ public class DeviceScanActivity extends Fragment {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                getActivity().finish();
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.container, MainFragment.newInstance()).commitNow();
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
@@ -192,45 +231,11 @@ public class DeviceScanActivity extends Fragment {
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
-        if (!mBTAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
 
         // Initializes list view adapter.
         //mLeDeviceListAdapter = new LeDeviceListAdapter();
         //setListAdapter(mLeDeviceListAdapter);
-        scanLeDevice(true);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
-                } else {
-                    // permission denied
-                    getActivity().finish();
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-                }
-                break;
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            getActivity().finish();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
+        //scanLeDevice(true);
     }
 
     @Override
@@ -392,18 +397,25 @@ public class DeviceScanActivity extends Fragment {
         mView.findViewById(R.id.button_stop).setVisibility(View.INVISIBLE);
         mScanning = false;
         getActivity().invalidateOptionsMenu();
+
     }
 
     private void startScanning() {
+        if(!mBTAdapter.isEnabled()) {
+            mBTAdapter.enable();
+            Toast.makeText(getContext(), getString(R.string.turning_on_bluetooth), Toast.LENGTH_SHORT).show();
+        }
+        checkIfLocationIsEnabled();
         mBTArrayAdapter.clear();
         mBTArrayAdapter.notifyDataSetChanged();
-        if(mBTAdapter.getBluetoothLeScanner() != null)
+        if(mBTAdapter.getBluetoothLeScanner() != null) {
             mBTAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
-        mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-        mView.findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
-        mView.findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
-        mScanning = true;
-        getActivity().invalidateOptionsMenu();
+            mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+            mView.findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
+            mView.findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
+            mScanning = true;
+            getActivity().invalidateOptionsMenu();
+        }
     }
     
     private class LeDeviceListAdapter extends BaseAdapter {
@@ -413,7 +425,7 @@ public class DeviceScanActivity extends Fragment {
         public LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<>();
-            mInflator = DeviceScanActivity.this.getLayoutInflater();
+            mInflator = DeviceScanFragment.this.getLayoutInflater();
         }
 
         public void addDevice(BluetoothDevice device) {

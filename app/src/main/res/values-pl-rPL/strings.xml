@@ -21,4 +21,10 @@
     <string name="connected">Połączono</string>
     <string name="systemsWheelSize">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
     <string name="wheelSize">Rozmiar koła</string>
+    <string name="without_bluetooth_unable_to_search" translatable="false">Nie można wyszukać urządzeń przy wyłączonym module bluetooth</string>
+    <string name="without_location_unable_to_search">Nie można wyszukać urządzeń bez włączonej lokalizacji</string>
+    <string name="turning_on_bluetooth">Uruchamiam moduł bluetooth</string>
+    <string name="location_needed_for_searching_devices">Lokalizacja jest wymagana, by skanować urządzenia</string>
+    <string name="open_location_settings">Otwórz ustawienia lokalizacji</string>
+    <string name="location_disabled_nothing_will_be_found">Lokalizacja wyłączona, żadne urządzenie nie zostanie odnalezione</string>
 </resources>

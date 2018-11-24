@@ -1,10 +1,14 @@
 package databinding.android.vogella.com.bikecounter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,6 +17,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
+
+import static databinding.android.vogella.com.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
+import static databinding.android.vogella.com.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance())
-                    .commitNow();
+                    .addToBackStack("main")
+                    .commit();
         }
 
     }
@@ -52,10 +60,24 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        FragmentManager manager = getSupportFragmentManager();
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
-        } else {
+        } else if(manager.getBackStackEntryCount() >= 2){
             super.onBackPressed();
+            //getSupportFragmentManager().popBackStack();
+            Fragment currentFragment = manager.findFragmentById(R.id.container);
+            if(currentFragment instanceof Profile){
+                mNavigationView.getMenu().getItem(0).setChecked(true);
+            }
+//            else if(currentFragment instanceof Settings){
+//                mNavigationView.getMenu().getItem(1).setChecked(true);
+//            }
+            else if(currentFragment instanceof DeviceScanFragment){
+                mNavigationView.getMenu().getItem(2).setChecked(true);
+            }
+        } else {
+            finish();
         }
     }
 
@@ -85,19 +107,17 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.profile:
                         getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.container, Profile.newInstance())
-                                .commitNow();
-                        Toast.makeText(MainActivity.this, R.string.profile, Toast.LENGTH_SHORT).show();
+                                .addToBackStack("profile")
+                                .commit();
                         break;
                     case R.id.settings:
                         Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
-                        Intent intent = new Intent(MainActivity.this, DeviceScanActivity.class);
                         getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, DeviceScanActivity.newInstance())
-                                .commitNow();
-                        //getLayoutInflater().inflate(R.layout.configuration_fragment, placeHolder);
-                        //startActivity(intent);
+                                .replace(R.id.container, DeviceScanFragment.newInstance())
+                                .addToBackStack("configuration")
+                                .commit();
                         break;
                     case R.id.exit:
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -115,6 +135,42 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
 
+    //it works only in activity, not in fragment
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_PERMISSION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission was granted
+                    Toast.makeText(getBaseContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
+                } else {
+                    // permission denied
+                    Toast.makeText(getBaseContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
+                    getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, MainFragment.newInstance())
+                            .commitNow();
+                }
+                break;
+            }
+        }
+    }
+
+    //it works only in activity, not in fragment, it will catch all fragments activityResults
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // User chose not to enable Bluetooth.
+        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+            Toast.makeText(getBaseContext(),getString(R.string.without_bluetooth_unable_to_search), Toast.LENGTH_SHORT).show();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MainFragment.newInstance())
+                    .commitNow();
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }
