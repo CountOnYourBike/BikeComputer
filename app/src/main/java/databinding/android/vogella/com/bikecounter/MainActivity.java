@@ -84,8 +84,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case R.id.configuration:
                         Intent intent = new Intent(MainActivity.this, DeviceScanActivity.class);
-                        //getLayoutInflater().inflate(R.layout.configuration_layout, placeHolder);
-                        startActivity(intent);
+                        getSupportFragmentManager().beginTransaction()
+                                .replace(R.id.container, DeviceScanActivity.newInstance())
+                                .commitNow();
+                        //getLayoutInflater().inflate(R.layout.configuration_fragment, placeHolder);
+                        //startActivity(intent);
                         break;
                     case R.id.exit:
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);

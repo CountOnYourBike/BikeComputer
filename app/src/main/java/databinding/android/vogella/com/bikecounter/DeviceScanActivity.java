@@ -36,7 +36,10 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -53,13 +56,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static android.content.Context.BIND_AUTO_CREATE;
 import static databinding.android.vogella.com.bikecounter.SampleGattAttributes.*;
 
 
 /**
  * Activity for scanning and displaying available Bluetooth LE devices.
  */
-public class DeviceScanActivity extends Activity {
+public class DeviceScanActivity extends Fragment {
     private static final String TAG = "DeviceScanActivity";
     private BluetoothLeService mBluetoothLeService;
     private BluetoothAdapter mBTAdapter;
@@ -71,41 +75,47 @@ public class DeviceScanActivity extends Activity {
     private ListView mDevicesListView;
     private Button button_scan;
     private Button button_stop;
+    private View mView;
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static final int REQUEST_LOCATION_PERMISSION = 2;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
+    public static DeviceScanActivity newInstance() {
+        return new DeviceScanActivity();
+    }
+
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.configuration_layout);
+    public View onCreateView (@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    @Nullable Bundle savedInstanceState) {
+        mView = inflater.inflate(R.layout.configuration_fragment, container, false);
+
 
         mBTArrayAdapter = new LeDeviceListAdapter();
-        mDevicesListView=findViewById(R.id.devicesListView);
+        mDevicesListView=mView.findViewById(R.id.devicesListView);
         mDevicesListView.setAdapter(mBTArrayAdapter); // assign model to view
         mDevicesListView.setOnItemClickListener(mDeviceClickListener);
         mHandler = new Handler();
 
-        button_scan = findViewById(R.id.button_scan);
-        button_stop = findViewById(R.id.button_stop);
+        button_scan = mView.findViewById(R.id.button_scan);
+        button_stop = mView.findViewById(R.id.button_stop);
 
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
+        if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(getActivity().getApplicationContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            getActivity().finish();
         }
 
         // checking permission for location services
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+        if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                     Manifest.permission.ACCESS_FINE_LOCATION))
                         showExplanation(getString(R.string.permission_needed), getString(R.string.location_permission_message), Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION);
             else
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
         }
 
         // Initializes a Bluetooth adapter.
@@ -114,9 +124,9 @@ public class DeviceScanActivity extends Activity {
 
         // Checks if Bluetooth is supported on the device.
         if (mBTAdapter == null) {
-            Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-            return;
+            Toast.makeText(getActivity().getApplicationContext(), R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
+            getActivity().finish();
+            return mView;
         }
 
         button_scan.setOnClickListener(new View.OnClickListener() {
@@ -132,6 +142,7 @@ public class DeviceScanActivity extends Activity {
         });
 
         scanLeDevice(true);
+        return mView;
     }
 
     // function to build an alert explaining needed permission(s)
@@ -139,7 +150,7 @@ public class DeviceScanActivity extends Activity {
                                  String message,
                                  final String permission,
                                  final int permissionRequestCode) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity().getApplicationContext());
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -151,7 +162,7 @@ public class DeviceScanActivity extends Activity {
     }
 
     private void requestPermission(String permissionName, int permissionRequestCode) {
-        ActivityCompat.requestPermissions(this,
+        ActivityCompat.requestPermissions(getActivity(),
                 new String[]{permissionName}, permissionRequestCode);
     }
 
@@ -163,7 +174,7 @@ public class DeviceScanActivity extends Activity {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                finish();
+                getActivity().finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
@@ -176,9 +187,9 @@ public class DeviceScanActivity extends Activity {
     };
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
-        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
         // fire an intent to display a dialog asking the user to grant permission to enable it.
         if (!mBTAdapter.isEnabled()) {
@@ -201,11 +212,11 @@ public class DeviceScanActivity extends Activity {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
                 } else {
                     // permission denied
-                    finish();
-                    Toast.makeText(getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
+                    getActivity().finish();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
                 }
                 break;
             }
@@ -213,31 +224,31 @@ public class DeviceScanActivity extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // User chose not to enable Bluetooth.
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            finish();
+            getActivity().finish();
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
-    protected void onPause() {
+    public void onPause() {
         super.onPause();
         scanLeDevice(false);
         mBTArrayAdapter.clear();
-        unregisterReceiver(mGattUpdateReceiver);
+        getActivity().unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
-    protected void onDestroy() {
+    public void onDestroy() {
         super.onDestroy();
         scanLeDevice(false);
         if(mBluetoothLeService != null)
             mBluetoothLeService.close();
         try {
-            unregisterReceiver(mGattUpdateReceiver);
+            getActivity().unregisterReceiver(mGattUpdateReceiver);
         } catch (IllegalArgumentException e) {
             // if the receiver is not registered
             e.printStackTrace();
@@ -257,18 +268,18 @@ public class DeviceScanActivity extends Activity {
             if (BluetoothLeService.ACTION_GATT_CONNECTING.equals(action)) {
                 mConnected = false;
                 Log.d(TAG, "Connecting");
-                findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-                invalidateOptionsMenu();
+                mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+                getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 Log.d(TAG, "Connected");
-                findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-                invalidateOptionsMenu();
+                mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 Log.d(TAG, "Disconnected");
-                findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-                invalidateOptionsMenu();
+                mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Choose the CSC Measurement characteristics from all the supported services and characteristics
                 BluetoothGattService gattService = null;
@@ -289,10 +300,10 @@ public class DeviceScanActivity extends Activity {
                         mBluetoothLeService.setCharacteristicNotification(
                                 characteristic, true);
                     }
-                    Toast.makeText(DeviceScanActivity.this, getString(R.string.connected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.connected), Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    Toast.makeText(DeviceScanActivity.this, getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();
                 }
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
@@ -354,15 +365,15 @@ public class DeviceScanActivity extends Activity {
         public void onItemClick(AdapterView<?> av, View v, int position, long id) {
 
             if(!mBTAdapter.isEnabled()) {
-                Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity().getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             //mBluetoothStatus.setText("Connecting...");
             BluetoothDevice selectedDevice = (BluetoothDevice)av.getItemAtPosition(position);
 
-            Intent gattServiceIntent = new Intent(DeviceScanActivity.this, BluetoothLeService.class);
-            bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+            Intent gattServiceIntent = new Intent(getActivity().getApplicationContext(), BluetoothLeService.class);
+            getActivity().bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
             mDeviceAddress = selectedDevice.getAddress();
             if (mScanning) {
                 scanLeDevice(false);
@@ -376,11 +387,11 @@ public class DeviceScanActivity extends Activity {
     private void stopScanning() {
         if(mBTAdapter.getBluetoothLeScanner() != null)
             mBTAdapter.getBluetoothLeScanner().stopScan(mLeScanCallback);
-        findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-        findViewById(R.id.button_scan).setVisibility(View.VISIBLE);
-        findViewById(R.id.button_stop).setVisibility(View.INVISIBLE);
+        mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+        mView.findViewById(R.id.button_scan).setVisibility(View.VISIBLE);
+        mView.findViewById(R.id.button_stop).setVisibility(View.INVISIBLE);
         mScanning = false;
-        invalidateOptionsMenu();
+        getActivity().invalidateOptionsMenu();
     }
 
     private void startScanning() {
@@ -388,11 +399,11 @@ public class DeviceScanActivity extends Activity {
         mBTArrayAdapter.notifyDataSetChanged();
         if(mBTAdapter.getBluetoothLeScanner() != null)
             mBTAdapter.getBluetoothLeScanner().startScan(mLeScanCallback);
-        findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-        findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
-        findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
+        mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+        mView.findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
+        mView.findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
         mScanning = true;
-        invalidateOptionsMenu();
+        getActivity().invalidateOptionsMenu();
     }
     
     private class LeDeviceListAdapter extends BaseAdapter {
