@@ -5,9 +5,25 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
-    <TextView
+    <GridLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+        android:layout_height="match_parent">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/speed"
+            android:text="Actual speed:"
+            android:layout_row="0"
+            android:layout_column="0" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/speed"
+            android:text=""
+            android:layout_row="1"
+            android:layout_column="0"/>
+
+    </GridLayout>
 </FrameLayout>

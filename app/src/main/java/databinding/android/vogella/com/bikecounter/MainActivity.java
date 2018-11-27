@@ -33,8 +33,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //placeHolder = findViewById(R.id.activity_main);
-
         initViewObject();
 
         if (savedInstanceState == null) {
@@ -151,9 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     // permission denied
                     Toast.makeText(getBaseContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.container, MainFragment.newInstance())
-                            .commitNow();
+                    onBackPressed();
                 }
                 break;
             }

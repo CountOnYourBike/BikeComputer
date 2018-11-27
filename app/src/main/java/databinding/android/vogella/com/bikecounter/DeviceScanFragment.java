@@ -229,12 +229,7 @@ public class DeviceScanFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        // Ensures Bluetooth is enabled on the device.  If Bluetooth is not currently enabled,
-        // fire an intent to display a dialog asking the user to grant permission to enable it.
 
-        // Initializes list view adapter.
-        //mLeDeviceListAdapter = new LeDeviceListAdapter();
-        //setListAdapter(mLeDeviceListAdapter);
         //scanLeDevice(true);
     }
 
@@ -250,8 +245,6 @@ public class DeviceScanFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         scanLeDevice(false);
-        if(mBluetoothLeService != null)
-            mBluetoothLeService.close();
         try {
             getActivity().unregisterReceiver(mGattUpdateReceiver);
         } catch (IllegalArgumentException e) {
@@ -310,12 +303,6 @@ public class DeviceScanFragment extends Fragment {
                 else {
                     Toast.makeText(getActivity().getApplicationContext(), getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();
                 }
-            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
-                Measurement measurement = Measurement.fromString(data);
-                Log.d(TAG, "Speed: " + measurement.getSpeed());
-                //TODO: Manage incoming data
-                //displayData());
             }
         }
     };
@@ -494,7 +481,6 @@ public class DeviceScanFragment extends Fragment {
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
-        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
     }
 }
