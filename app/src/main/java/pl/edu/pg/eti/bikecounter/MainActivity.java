@@ -108,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
 
                 switch (id) {
                     case R.id.home:
-                        if(getSupportFragmentManager().findFragmentByTag("home") == null) {
+                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("home")) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.container, MainFragment.newInstance())
                                     .addToBackStack("home")
@@ -116,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case R.id.profile:
-                        if(getSupportFragmentManager().findFragmentByTag("profile") == null) {
+                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("profile")) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.container, Profile.newInstance())
                                     .addToBackStack("profile")
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
-                        if(getSupportFragmentManager().findFragmentByTag("configuration") == null) {
+                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("configuration")) {
                             getSupportFragmentManager().beginTransaction()
                                     .replace(R.id.container, DeviceScanFragment.newInstance())
                                     .addToBackStack("configuration")
