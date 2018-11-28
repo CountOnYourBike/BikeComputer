@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 28
     defaultConfig {
-        applicationId "databinding.android.vogella.com.bikecounter"
+        applicationId "pl.edu.pg.eti.bikecounter"
         minSdkVersion 21
         targetSdkVersion 28
         versionCode 1

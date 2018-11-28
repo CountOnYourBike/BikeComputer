@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
 import java.util.HashMap;
 

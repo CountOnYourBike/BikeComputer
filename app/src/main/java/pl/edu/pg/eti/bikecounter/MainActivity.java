@@ -1,4 +1,4 @@
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,14 +18,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import static databinding.android.vogella.com.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
-import static databinding.android.vogella.com.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
+import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
+import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
+    public Double circuit = 2100.;
 
 
     @Override
@@ -38,8 +39,9 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance())
-                    .addToBackStack("main")
+                    .addToBackStack("home")
                     .commit();
+            mNavigationView.getMenu().getItem(0).setChecked(true);
         }
 
     }
@@ -65,14 +67,17 @@ public class MainActivity extends AppCompatActivity {
             super.onBackPressed();
             //getSupportFragmentManager().popBackStack();
             Fragment currentFragment = manager.findFragmentById(R.id.container);
-            if(currentFragment instanceof Profile){
+            if(currentFragment instanceof MainFragment){
                 mNavigationView.getMenu().getItem(0).setChecked(true);
             }
+            if(currentFragment instanceof Profile){
+                mNavigationView.getMenu().getItem(1).setChecked(true);
+            }
 //            else if(currentFragment instanceof Settings){
-//                mNavigationView.getMenu().getItem(1).setChecked(true);
+//                mNavigationView.getMenu().getItem(2).setChecked(true);
 //            }
             else if(currentFragment instanceof DeviceScanFragment){
-                mNavigationView.getMenu().getItem(2).setChecked(true);
+                mNavigationView.getMenu().getItem(3).setChecked(true);
             }
         } else {
             finish();
@@ -102,20 +107,32 @@ public class MainActivity extends AppCompatActivity {
 
 
                 switch (id) {
+                    case R.id.home:
+                        if(getSupportFragmentManager().findFragmentByTag("home") == null) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, MainFragment.newInstance())
+                                    .addToBackStack("home")
+                                    .commit();
+                        }
+                        break;
                     case R.id.profile:
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, Profile.newInstance())
-                                .addToBackStack("profile")
-                                .commit();
+                        if(getSupportFragmentManager().findFragmentByTag("profile") == null) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, Profile.newInstance())
+                                    .addToBackStack("profile")
+                                    .commit();
+                        }
                         break;
                     case R.id.settings:
                         Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
-                        getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.container, DeviceScanFragment.newInstance())
-                                .addToBackStack("configuration")
-                                .commit();
+                        if(getSupportFragmentManager().findFragmentByTag("configuration") == null) {
+                            getSupportFragmentManager().beginTransaction()
+                                    .replace(R.id.container, DeviceScanFragment.newInstance())
+                                    .addToBackStack("configuration")
+                                    .commit();
+                        }
                         break;
                     case R.id.exit:
                         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -133,6 +150,14 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+    }
+
+    public Double getCircuit() {
+        return circuit;
+    }
+
+    public void setCircuit(Double circuit) {
+        this.circuit = circuit;
     }
 
     //it works only in activity, not in fragment

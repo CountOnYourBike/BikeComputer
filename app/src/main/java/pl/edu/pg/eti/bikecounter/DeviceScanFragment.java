@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -59,7 +58,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static databinding.android.vogella.com.bikecounter.SampleGattAttributes.*;
+import static pl.edu.pg.eti.bikecounter.SampleGattAttributes.*;
 
 
 /**

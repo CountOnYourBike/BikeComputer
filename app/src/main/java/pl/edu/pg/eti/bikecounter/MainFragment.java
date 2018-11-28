@@ -1,4 +1,4 @@
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -23,7 +23,6 @@ public class MainFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        textView = container.findViewById(R.id.speed);
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         return inflater.inflate(R.layout.main_fragment, container, false);
     }
@@ -31,6 +30,7 @@ public class MainFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        textView = getView().findViewById(R.id.speed);
         // TODO: Use the ViewModel
     }
 
@@ -64,7 +64,7 @@ public class MainFragment extends Fragment {
             if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 String data = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 Measurement measurement = Measurement.fromString(data);
-                textView.setText(String.valueOf(measurement.getSpeed()) + " m/s");
+                textView.setText(String.valueOf(measurement.getSpeed(((MainActivity)getActivity()).getCircuit())) + " m/s");
                 getActivity().invalidateOptionsMenu();
             }
         }

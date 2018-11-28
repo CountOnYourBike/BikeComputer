@@ -1,4 +1,4 @@
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
 import java.io.Serializable;
 
@@ -23,8 +23,8 @@ public class Measurement implements Serializable {
         return new Measurement(Integer.parseInt(numberOfRevString), Integer.parseInt(wheelEventTimeString));
     }
 
-    public double getSpeed() {
-        final double speed = numberOfRevolutions*(2*Math.PI*0.3)*1000/wheelEventTime;
+    public double getSpeed(Double circuit) {    // circuit w mm
+        final double speed = numberOfRevolutions*circuit/1000*1000/wheelEventTime;
         return Math.floor(speed*100)/100;
     }
 }

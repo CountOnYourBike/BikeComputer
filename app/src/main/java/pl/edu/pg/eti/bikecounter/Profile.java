@@ -1,6 +1,5 @@
-package databinding.android.vogella.com.bikecounter;
+package pl.edu.pg.eti.bikecounter;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class Profile extends Fragment implements AdapterView.OnItemSelectedListener {
@@ -38,12 +36,13 @@ public class Profile extends Fragment implements AdapterView.OnItemSelectedListe
                 Context context = parent.getContext();
 
 
-                String ETRTO_system, InchOrMetricSystem , Circuit;
+                String ETRTO_system, InchOrMetricSystem , circuit;
                 ETRTO_system = selected.split(" | ")[0];
                 InchOrMetricSystem = selected.split(" | ")[2];
-                Circuit = selected.split(" | ")[4];
+                circuit = selected.split(" | ")[4];
+                ((MainActivity)getActivity()).setCircuit(Double.parseDouble(circuit));
 
-                Toast toast = Toast.makeText(context, Circuit+"mm", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(context, circuit+"mm", Toast.LENGTH_SHORT);
                 toast.show();
             }
 
