@@ -5,28 +5,86 @@
     android:layout_height="match_parent"
     tools:context=".MainFragment">
 
-    <GridLayout
+    <LinearLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:rowCount="3">
 
-        <TextView
+        <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:labelFor="@+id/speed"
-            android:text="Actual speed:"
-            android:layout_row="0"
-            android:layout_column="0" />
+            android:columnCount="2"
+            android:rowCount="2"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
+            <Button
+                android:layout_gravity="start|top"
+                android:text="dlsfkjdf"
+                android:id="@+id/speed"/>
+
+            <Button
+                android:layout_gravity="end|top"
+                android:text="sfhkjhkjhkjhkjh" />
+            <Button android:layout_gravity="start|bottom"
+                android:text="sdfljgfj" />
+            <Button android:text="efjhjkjhkjhkjhkhskf"
+                android:layout_gravity="end|bottom"/>
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/speed"
-            android:text=""
-            android:layout_row="1"
-            android:layout_column="0"
-            android:textSize="100sp"
-            android:textAlignment="center"
-            android:textColor="@color/colorBlack"/>
+            android:orientation="horizontal">
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Button1"
+                android:layout_row="1"
+                android:layout_column="0"/>
 
-    </GridLayout>
+            <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_column="0"
+                android:text="Button2"/>
+
+            <Button android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_row="1"
+                android:layout_column="1"
+                android:text="Button3" />
+        </LinearLayout>
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    </LinearLayout>
+
+    <!--<GridLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent">   -->
+    <!---->
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:labelFor="@+id/speed"-->
+    <!--android:text="Actual speed:"-->
+    <!--android:layout_row="0"-->
+    <!--android:layout_column="0" />-->
+
+    <!--<TextView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:id="@+id/speed"-->
+    <!--android:text=""-->
+    <!--android:layout_row="1"-->
+    <!--android:layout_column="0"-->
+    <!--android:textSize="100sp"-->
+    <!--android:textAlignment="center"-->
+    <!--android:textColor="@color/colorBlack"/>-->
+    <!--</GridLayout>-->
 </FrameLayout>

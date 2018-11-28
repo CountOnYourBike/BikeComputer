@@ -1,5 +1,6 @@
 package pl.edu.pg.eti.bikecounter;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,8 +14,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapsInitializer;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 public class MainFragment extends Fragment {
+
     private TextView textView;
+    MapView mMapView;
+    private GoogleMap googleMap;
 
     public static MainFragment newInstance() {
         return new MainFragment();
@@ -24,7 +37,36 @@ public class MainFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-        return inflater.inflate(R.layout.main_fragment, container, false);
+        View rootView = inflater.inflate(R.layout.main_fragment, container, false);
+
+        mMapView = (MapView) rootView.findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+
+        mMapView.onResume();
+
+        try {
+            MapsInitializer.initialize((getActivity().getApplicationContext()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @SuppressLint("MissingPermission")
+            @Override
+            public void onMapReady(GoogleMap mMap) {
+                googleMap = mMap;
+
+                googleMap.setMyLocationEnabled(true);
+
+                LatLng warsaw = new LatLng(52.237049, 21.017532);
+                googleMap.addMarker(new MarkerOptions().position(warsaw).title("Warszawa").snippet("Stolica Polski"));
+
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(warsaw).zoom(12).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
+        });
+
+        return rootView;
     }
 
     @Override
@@ -55,6 +97,12 @@ public class MainFragment extends Fragment {
             // if the receiver is not registered
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mMapView.onLowMemory();
     }
 
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
