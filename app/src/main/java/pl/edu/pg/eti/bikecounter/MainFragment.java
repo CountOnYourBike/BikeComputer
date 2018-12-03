@@ -33,6 +33,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -123,7 +124,6 @@ public class MainFragment extends Fragment {
                 ((Animatable)fabPause.getDrawable()).start();
                 fabStop.startAnimation(fabOpen);
                 //TODO: Manage play
-                startLocationUpdates();
                 ((MainActivity)getActivity()).setStarted(true);
                 ((MainActivity)getActivity()).setPaused(false);
             }
@@ -138,7 +138,6 @@ public class MainFragment extends Fragment {
                 ((Animatable)d).start();
                 fabStop.startAnimation(fabClose);
                 //TODO: Manage pause
-                stopLocationUpdates();
                 ((MainActivity)getActivity()).setPaused(true);
             }
         });
@@ -152,7 +151,6 @@ public class MainFragment extends Fragment {
                 ((Animatable)d).start();
                 fabStop.startAnimation(fabClose);
                 //TODO: Manage stop
-                stopLocationUpdates();
                 ((MainActivity)getActivity()).setPaused(false);
                 ((MainActivity)getActivity()).setStarted(false);
             }
@@ -165,12 +163,17 @@ public class MainFragment extends Fragment {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(location.getLatitude(),
-                                    location.getLongitude()), 18));
+                    CameraPosition cameraPos = new CameraPosition.Builder()
+                            .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .zoom(18)
+                            .bearing(location.getBearing())
+                            .tilt(40)
+                            .build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos), null);
                 }
             }
         };
+
         fillRideParams(null);
 
         return rootView;
@@ -185,12 +188,14 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        startLocationUpdates();
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        stopLocationUpdates();
         getActivity().unregisterReceiver(mGattUpdateReceiver);
         stopLocationUpdates();
     }
@@ -241,12 +246,15 @@ public class MainFragment extends Fragment {
                 locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful() && task.getResult()!=null) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), 15));
+
+                            CameraPosition cameraPos = new CameraPosition.Builder().target(new LatLng(mLastKnownLocation.getLatitude(),
+                                    mLastKnownLocation.getLongitude()))
+                                    .zoom(18).bearing(mLastKnownLocation.getBearing()).build();
+                            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos), null);
+                            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                         } else {
                             Log.d("MainFragment", "Current location is null. Using defaults.");
                             Log.e("MainFragment", "Exception: %s", task.getException());
@@ -298,11 +306,10 @@ public class MainFragment extends Fragment {
 
     private void startLocationUpdates() {
         try {
-            mFusedLocationProviderClient.requestLocationUpdates(LocationRequest
-                                                                .create()
+            mFusedLocationProviderClient.requestLocationUpdates(LocationRequest.create()
                                                                 .setPriority(LocationRequest.PRIORITY_NO_POWER)
                                                                 .setInterval(5000)
-                                                                .setFastestInterval(500),
+                                                                .setFastestInterval(1000),
                     mLocationCallback,
                     null /* Looper */);
         } catch (SecurityException se) {
