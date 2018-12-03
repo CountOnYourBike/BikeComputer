@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -18,6 +19,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -38,6 +40,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.LocationServices;
+
+import java.util.Locale;
 
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
@@ -64,6 +68,7 @@ public class MainFragment extends Fragment {
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         final View rootView = inflater.inflate(R.layout.main_fragment, container, false);
+
 
         // checking permission for location services
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -122,7 +127,11 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPause).setVisibility(View.VISIBLE);
                 fabPlay.setImageDrawable(getResources().getDrawable(R.drawable.pause_to_play_animation, null));
                 ((Animatable)fabPause.getDrawable()).start();
-                fabStop.startAnimation(fabOpen);
+                if(!((MainActivity)getActivity()).isPaused()) {
+                    fabStop.startAnimation(fabOpen);
+                    fabStop.setClickable(true);
+                    fillRideParams(null);
+                }
                 //TODO: Manage play
                 ((MainActivity)getActivity()).setStarted(true);
                 ((MainActivity)getActivity()).setPaused(false);
@@ -136,7 +145,6 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
                 Drawable d = fabPlay.getDrawable();
                 ((Animatable)d).start();
-                fabStop.startAnimation(fabClose);
                 //TODO: Manage pause
                 ((MainActivity)getActivity()).setPaused(true);
             }
@@ -148,8 +156,10 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPause).setVisibility(View.INVISIBLE);
                 getView().findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
                 Drawable d = fabPlay.getDrawable();
-                ((Animatable)d).start();
+                if(!((MainActivity)getActivity()).isPaused())
+                    ((Animatable)d).start();
                 fabStop.startAnimation(fabClose);
+                fabStop.setClickable(false);
                 //TODO: Manage stop
                 ((MainActivity)getActivity()).setPaused(false);
                 ((MainActivity)getActivity()).setStarted(false);
@@ -198,6 +208,7 @@ public class MainFragment extends Fragment {
         stopLocationUpdates();
         getActivity().unregisterReceiver(mGattUpdateReceiver);
         stopLocationUpdates();
+        ((MainActivity)getActivity()).removeTimeCallback();
     }
 
     @Override
@@ -206,6 +217,7 @@ public class MainFragment extends Fragment {
         try {
             getActivity().unregisterReceiver(mGattUpdateReceiver);
             stopLocationUpdates();
+            ((MainActivity)getActivity()).removeTimeCallback();
         } catch (IllegalArgumentException e) {
             // if the receiver is not registered
             e.printStackTrace();
@@ -216,6 +228,20 @@ public class MainFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mMapView.setVisibility(View.GONE);
+            stopLocationUpdates();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            mMapView.setVisibility(View.VISIBLE);
+            startLocationUpdates();
+        }
     }
 
     void updateLocationUI() {
@@ -279,7 +305,7 @@ public class MainFragment extends Fragment {
                 Measurement measurement = Measurement.fromString(data);
                 //TODO: Podmienić z bazy danych
                 double wheelCirc = mainActivity.getWheelCirc();
-                mainActivity.addToDistance(measurement.getNumberOfRevolutions()*wheelCirc/100000);
+                mainActivity.addToDistance(measurement.getDistance(wheelCirc));
                 fillRideParams(measurement);
             }
         }
@@ -292,9 +318,12 @@ public class MainFragment extends Fragment {
         } else {
             speedTextView.setText(String.valueOf(measurement.getSpeed(mainActivity.getWheelCirc())));
         }
-        averageSpeedTextView.setText(String.valueOf(mainActivity.getDistance() / mainActivity.getTotalTime()));
+        double averageSpeed = mainActivity.getDistance() / (mainActivity.getTotalTimeInHours());
+        if(Double.isNaN(averageSpeed))
+            averageSpeedTextView.setText("0.0");
+        else
+            averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
         distanceTextView.setText(String.valueOf(mainActivity.getDistance()));
-        timeTextView.setText(String.valueOf(mainActivity.getTotalTime()));
         mainActivity.invalidateOptionsMenu();
     }
 
