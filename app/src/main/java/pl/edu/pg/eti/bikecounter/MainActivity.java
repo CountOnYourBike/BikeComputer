@@ -26,7 +26,14 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
-    public Double circuit = 2100.;
+    //TODO: Czytać z bazy danych
+    private Double wheelCirc = 2100.;
+    private double distance = 0;
+    private boolean mConnected = false;
+    private boolean mPaused = false;
+    private boolean mStarted = false;
+    //TODO: Obsłużyć czas przejazdu
+    private double mTotalTime = 0.001;
 
 
     @Override
@@ -91,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
         mActionBarDrawerToggle.syncState();
-//        mActionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mNavigationView = findViewById(R.id.navigation_view);
@@ -110,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.home:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("home")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MainFragment.newInstance())
+                                    .replace(R.id.container, MainFragment.newInstance(), "home")
                                     .addToBackStack("home")
                                     .commit();
                         }
@@ -118,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.profile:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("profile")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, Profile.newInstance())
+                                    .replace(R.id.container, Profile.newInstance(), "profile")
                                     .addToBackStack("profile")
                                     .commit();
                         }
@@ -129,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.configuration:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("configuration")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, DeviceScanFragment.newInstance())
+                                    .replace(R.id.container, DeviceScanFragment.newInstance(), "configuration")
                                     .addToBackStack("configuration")
                                     .commit();
                         }
@@ -152,12 +158,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public Double getCircuit() {
-        return circuit;
+    public Double getWheelCirc() {
+        return wheelCirc;
     }
 
-    public void setCircuit(Double circuit) {
-        this.circuit = circuit;
+    public void setWheelCirc(Double wheelCirc) {
+        this.wheelCirc = wheelCirc;
+    }
+
+    public boolean isConnected() {
+        return mConnected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.mConnected = connected;
+    }
+
+    public double getDistance() {
+        return Math.floor(distance*100)/100;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
+
+    public void addToDistance(double distanceToAdd) {
+        this.distance += distanceToAdd;
+    }
+
+    public boolean isStarted() {
+        return mStarted;
+    }
+
+    public void setStarted(boolean mStarted) {
+        this.mStarted = mStarted;
+    }
+
+    public boolean isPaused() {
+        return mPaused;
+    }
+
+    public void setPaused(boolean mPaused) {
+        this.mPaused = mPaused;
     }
 
     //it works only in activity, not in fragment
@@ -171,10 +213,12 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                     Toast.makeText(getBaseContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, MainFragment.newInstance(), "home")
+                            .commitNow();
                 } else {
                     // permission denied
-                    Toast.makeText(getBaseContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-                    onBackPressed();
+                    Toast.makeText(getBaseContext(), getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show();
+                    //onBackPressed();
                 }
                 break;
             }
@@ -188,10 +232,14 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             Toast.makeText(getBaseContext(),getString(R.string.without_bluetooth_unable_to_search), Toast.LENGTH_SHORT).show();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
+                    .replace(R.id.container, MainFragment.newInstance(), "home")
                     .commitNow();
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public double getTotalTime() {
+        return mTotalTime;
     }
 }

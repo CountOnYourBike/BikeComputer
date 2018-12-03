@@ -66,7 +66,7 @@ public class BluetoothLeService extends Service {
             "pl.edu.pg.eti.bikecounter.EXTRA_DATA";
 
     public final static UUID UUID_CSC_MEASUREMENT =
-            UUID.fromString(SampleGattAttributes.CSC_MEASUREMENT_CHARACTERISTICS);
+            UUID.fromString(CyclingGattAttributes.CSC_MEASUREMENT_CHARACTERISTICS);
 
 
     // Implements callback methods for GATT events that the app cares about.  For example,
@@ -300,7 +300,7 @@ public class BluetoothLeService extends Service {
         // This is specific to Heart Rate Measurement.
         if (UUID_CSC_MEASUREMENT.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+                    UUID.fromString(CyclingGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
         }

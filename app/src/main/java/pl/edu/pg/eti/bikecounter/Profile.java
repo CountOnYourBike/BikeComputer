@@ -36,13 +36,13 @@ public class Profile extends Fragment implements AdapterView.OnItemSelectedListe
                 Context context = parent.getContext();
 
 
-                String ETRTO_system, InchOrMetricSystem , circuit;
+                String ETRTO_system, InchOrMetricSystem , circ;
                 ETRTO_system = selected.split(" | ")[0];
                 InchOrMetricSystem = selected.split(" | ")[2];
-                circuit = selected.split(" | ")[4];
-                ((MainActivity)getActivity()).setCircuit(Double.parseDouble(circuit));
+                circ = selected.split(" | ")[4];
+                ((MainActivity)getActivity()).setWheelCirc(Double.parseDouble(circ));
 
-                Toast toast = Toast.makeText(context, circuit+"mm", Toast.LENGTH_SHORT);
+                Toast toast = Toast.makeText(context, circ+"mm", Toast.LENGTH_SHORT);
                 toast.show();
             }
 

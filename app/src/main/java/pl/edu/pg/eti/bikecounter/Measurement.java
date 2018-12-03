@@ -23,8 +23,13 @@ public class Measurement implements Serializable {
         return new Measurement(Integer.parseInt(numberOfRevString), Integer.parseInt(wheelEventTimeString));
     }
 
-    public double getSpeed(Double circuit) {    // circuit w mm
-        final double speed = numberOfRevolutions*circuit/1000*1000/wheelEventTime;
+    public double getSpeed(Double circ) {    // wheelCirc w mm
+        double speed = numberOfRevolutions*circ/1000.*1000./wheelEventTime; // m/s
+        speed = speed * 3.6;
         return Math.floor(speed*100)/100;
+    }
+
+    public Integer getNumberOfRevolutions() {
+        return numberOfRevolutions;
     }
 }

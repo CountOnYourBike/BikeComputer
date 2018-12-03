@@ -58,7 +58,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static pl.edu.pg.eti.bikecounter.SampleGattAttributes.*;
+import static pl.edu.pg.eti.bikecounter.CyclingGattAttributes.*;
 
 
 /**
@@ -70,7 +70,6 @@ public class DeviceScanFragment extends Fragment {
     private BluetoothAdapter mBTAdapter;
     private LeDeviceListAdapter mBTArrayAdapter;
     private String mDeviceAddress;
-    private boolean mConnected = false;
     private boolean mScanning;
     private Handler mHandler;
     private ListView mDevicesListView;
@@ -102,6 +101,12 @@ public class DeviceScanFragment extends Fragment {
         button_scan = mView.findViewById(R.id.button_scan);
         button_stop = mView.findViewById(R.id.button_stop);
 
+        TextView connectedTextView = mView.findViewById(R.id.counter_connected_state);
+        if(((MainActivity)getActivity()).isConnected())
+            connectedTextView.setText(getText(R.string.connected));
+        else
+            connectedTextView.setText(getText(R.string.disconnected));
+
 
         // Use this check to determine whether BLE is supported on the device.
         if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -118,8 +123,6 @@ public class DeviceScanFragment extends Fragment {
             else
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
         }
-
-
 
         // Initializes a Bluetooth adapter.
         mBTAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -228,8 +231,6 @@ public class DeviceScanFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
-
-        //scanLeDevice(true);
     }
 
     @Override
@@ -256,26 +257,27 @@ public class DeviceScanFragment extends Fragment {
     // ACTION_GATT_CONNECTED: connected to a GATT server.
     // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
     // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             if (BluetoothLeService.ACTION_GATT_CONNECTING.equals(action)) {
-                mConnected = false;
                 Log.d(TAG, "Connecting");
                 mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
+                ((MainActivity)getActivity()).setConnected(false);
+                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.disconnected));
                 getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
                 Log.d(TAG, "Connected");
                 mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                ((MainActivity)getActivity()).setConnected(true);
+                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.connected));
                 getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
                 Log.d(TAG, "Disconnected");
                 mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
+                ((MainActivity)getActivity()).setConnected(false);
+                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.disconnected));
                 getActivity().invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 // Choose the CSC Measurement characteristics from all the supported services and characteristics
@@ -297,7 +299,7 @@ public class DeviceScanFragment extends Fragment {
                         mBluetoothLeService.setCharacteristicNotification(
                                 characteristic, true);
                     }
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.connected), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.successfully_connected), Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(getActivity().getApplicationContext(), getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();

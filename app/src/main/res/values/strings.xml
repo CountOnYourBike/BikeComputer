@@ -15,10 +15,10 @@
     <string name="permission_needed">Permission Needed</string>
     <string name="location_permission_message">Location permission is needed for scanning Bluetooth devices</string>
     <string name="permission_granted">Permission granted</string>
-    <string name="permission_denied">Permission denied</string>
+    <string name="location_permission_denied">Location permission denied.\nAccept if you want to use our app!</string>
     <string name="really_want_to_exit">Do you really want to exit?</string>
     <string name="csc_not_supported">That device does not support Cycling Speed and Cadence Service!</string>
-    <string name="connected">Successfully connected</string>
+    <string name="successfully_connected">Successfully connected</string>
     <string name="wheelSize">Wheel size</string>
     <string name="systemsWheelSize">ETRTO system | Inch/metric system(french) | Circuit</string>
     <string name="without_bluetooth_unable_to_search">Without Bluetooth we cannot search for devices</string>
@@ -27,4 +27,25 @@
     <string name="location_needed_for_searching_devices">Location is needed for searching devices</string>
     <string name="open_location_settings">Open location settings</string>
     <string name="location_disabled_nothing_will_be_found">Location is disabled, nothing will be found</string>
+    <string name="counter">Counter:</string>
+    <string name="disconnected">Disconnected</string>
+    <string name="connected">Connected</string>
+
+    <!-- Play Icon -->
+    <string name="play_icon_upper_path_data" translatable="false">M 44 32 L 44 65 L 98 65 L 100 64 Z</string>
+    <string name="play_icon_bottom_path_data" translatable="false">M 44 96 L 44 63 L 98 63 L 100 64 Z</string>
+
+    <!-- Pause Icon -->
+    <string name="pause_icon_upper_path_data" translatable="false">M 32 40 L 32 56  L 96 56 L 96 40 Z</string>
+    <string name="pause_icon_bottom_path_data" translatable="false">M 32 88 L 32 72 L 96 72 L 96 88 Z</string>
+
+    <!-- Groups -->
+    <string name="play_icon_group_top" translatable="false">upperpart</string>
+    <string name="play_icon_group_bottom" translatable="false">bottompart</string>
+    <string name="play_icon_group_parts" translatable="false">parts</string>
+
+    <!-- Path Name -->
+    <string name="play_icon_top_path_name" translatable="false">upper</string>
+    <string name="play_icon_bottom_path_name" translatable="false">bottom</string>
+
 </resources>

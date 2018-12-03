@@ -3,30 +3,199 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainFragment">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context=".MainFragment"
+    android:tag="main_fragment">
 
-    <GridLayout
+    <LinearLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:rowCount="3">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:labelFor="@+id/speed"
-            android:text="Actual speed:"
-            android:layout_row="0"
-            android:layout_column="0" />
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:orientation="vertical">
 
-        <TextView
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/speed"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="0"
+                            android:textSize="60sp"
+                            android:textColor="@color/colorBlack"/>
+                        <TextView android:text="km/h"
+                            android:textSize="20sp"/>
+
+                        <TextView
+                            android:id="@+id/average_speed"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="0"
+                            android:textSize="60sp"
+                            android:textColor="@color/colorBlack"/>
+                        <TextView android:text="km/h"
+                            android:textSize="20sp"
+                            android:layout_marginEnd="5dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="PRĘDKOŚĆ"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="ŚR. PRĘDKOŚĆ"
+                            android:textSize="20sp" />
+
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
+
+                        <TextView
+                            android:id="@+id/distance"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="end|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="0"
+                            android:textSize="60sp"
+                            android:textColor="@color/colorBlack"/>
+                        <TextView android:text="km"
+                            android:textSize="20sp"/>
+
+                        <TextView
+                            android:id="@+id/total_time"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="0"
+                            android:textSize="60sp"
+                            android:textColor="@color/colorBlack"/>
+                        <TextView android:text="min"
+                            android:textSize="20sp"/>
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="end|top"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="DYSTANS"
+                            android:textSize="20sp" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center"
+                            android:text="CZAS"
+                            android:textSize="20sp" />
+                    </TableRow>
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                        <View
+                            android:layout_width="wrap_content"
+                            android:layout_height="3dp"
+                            android:layout_marginTop="5dp"
+                            android:background="@android:color/darker_gray" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <com.google.android.gms.maps.MapView
+            android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/speed"
-            android:text=""
-            android:layout_row="1"
-            android:layout_column="0"
-            android:textSize="100sp"
-            android:textAlignment="center"
-            android:textColor="@color/colorBlack"/>
+            android:layout_height="0dp"
+            android:layout_weight="5" />
 
-    </GridLayout>
+    </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/play_to_pause_animation"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_gravity="bottom|end"
+        android:visibility="invisible"
+        app:maxImageSize="30dp" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/ic_stop_white_24dp"
+        android:background="@drawable/ic_launcher_background"
+        android:layout_marginBottom="80dp"
+        android:layout_marginEnd="16dp"
+        android:layout_gravity="bottom|end"
+        android:scaleType="center"
+        app:maxImageSize="30dp"
+        android:visibility="invisible"
+        android:backgroundTint="@color/colorRed" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        android:src="@drawable/play_icon"
+        android:layout_margin="16dp"
+        android:layout_gravity="bottom|end"
+        android:visibility="visible"
+        android:scaleType="center"
+        app:maxImageSize="30dp"/>
 </FrameLayout>
