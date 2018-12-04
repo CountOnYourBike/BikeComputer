@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -234,13 +235,33 @@ public class MainFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
 
+        FloatingActionButton fabStop = getView().findViewById(R.id.fabStop);
+        FloatingActionButton fabPlay = getView().findViewById(R.id.fabPlay);
         // Checks the orientation of the screen
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             mMapView.setVisibility(View.GONE);
             stopLocationUpdates();
+            float translationY = fabPlay.getY()-fabStop.getY();
+            float translationX = -translationY;
+            TranslateAnimation ta = new TranslateAnimation(-translationX, 0, -translationY, 0);
+            ta.setDuration(1000);
+            ta.setFillAfter(true);
+            if(fabStop.isClickable())
+                fabStop.startAnimation(ta);
+            fabStop.setTranslationX(translationX);
+            fabStop.setTranslationY(translationY);
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
             mMapView.setVisibility(View.VISIBLE);
             startLocationUpdates();
+            float translationX = fabPlay.getX()-fabStop.getX();
+            float translationY = -translationX;
+            TranslateAnimation ta = new TranslateAnimation(-translationX, 0, -translationY, 0);
+            ta.setDuration(1000);
+            ta.setFillAfter(true);
+            if(fabStop.isClickable())
+                fabStop.startAnimation(ta);
+            fabStop.setTranslationX(0);
+            fabStop.setTranslationY(0);
         }
     }
 
