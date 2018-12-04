@@ -9,19 +9,34 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
+        <!--
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/wheelSize" />
+-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/wheel_size_scale" />
+
+        <Spinner
+            android:id="@+id/scaleSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+        <!--
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/systemsWheelSize" />
+        -->
         <Spinner
             android:id="@+id/spinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             />
+        
     </LinearLayout>
 
 </FrameLayout>

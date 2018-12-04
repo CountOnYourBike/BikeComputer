@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+
+    <string-array name="scalewheelsizes">
+        <item>@string/ETRTOsystems </item>
+        <item>@string/Inchsystems</item>
+        <item>@string/Circuitsystems</item>
+    </string-array>
+
+
     <string-array name="wheelsizes">
 
         <item>47-203 | 12×1.75 | 935</item>

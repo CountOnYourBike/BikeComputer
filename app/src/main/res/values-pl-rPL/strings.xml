@@ -31,4 +31,8 @@
     <string name="counter">"Licznik: "</string>
     <string name="disconnected">Rozłączono</string>
     <string name="connected">Połączono</string>
+    <string name="ETRTOsystems">"System ETRTO "</string>
+    <string name="Circuitsystems">Obwód</string>
+    <string name="Inchsystems">System calowy/metryczny(francuski)</string>
+    <string name="wheel_size_scale">Rozmiary kół</string>
 </resources>

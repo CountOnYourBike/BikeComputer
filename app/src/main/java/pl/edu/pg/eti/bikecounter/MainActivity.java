@@ -2,9 +2,13 @@ package pl.edu.pg.eti.bikecounter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -18,6 +22,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
@@ -26,8 +32,12 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
-    //TODO: Czytać z bazy danych
-    private Double wheelCirc = 2100.;
+    /*
+    TODO ogarnąć pobieranie z BD weelCirc i mWeelCIirc position oraz wyświetlrnie we fragmencie
+    TODO może dodatkowa klasa obsługujaca Shared preferences i klasa do BD
+    */
+    private Double wheelCirc;
+    //private int mWeelCircPosition;
     private double distance = 0;
     private boolean mConnected = false;
     private boolean mPaused = false;
@@ -35,12 +45,21 @@ public class MainActivity extends AppCompatActivity {
     //TODO: Obsłużyć czas przejazdu
     private double mTotalTime = 0.001;
 
+    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
+    protected SharedPreferences mSharedPreferences;
+    protected SharedPreferences.Editor mEditor;
+    private CounterDatabase mCounterDatabase;
+    private Cursor mCursor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        initPreferences();
+        //initDatabase();
         initViewObject();
 
         if (savedInstanceState == null) {
@@ -51,6 +70,51 @@ public class MainActivity extends AppCompatActivity {
             mNavigationView.getMenu().getItem(0).setChecked(true);
         }
 
+    }
+
+    @Override
+    protected void onStop(){
+        mEditor.putBoolean("FirstUse",false);
+        mEditor.commit();
+        super.onStop();
+    }
+
+/*
+    private void initDatabase() {
+
+        mCounterDatabase=new CounterDatabase(this);
+        if(mSharedPreferences.getBoolean("FirstUse",true)){
+
+            //TODO pierwsze uruchomienie
+            Toast.makeText(getBaseContext(), "Witaj po raz pierwszy", Toast.LENGTH_SHORT).show();
+            ArrayList<Wheel> wheels =Wheel.makeWheels();
+            mCounterDatabase.open();
+            for(Wheel wheel: wheels ){
+                ContentValues newValues = new ContentValues();
+                newValues.put(CounterDatabase.ETRTO,wheel.getETRTO());
+                newValues.put(CounterDatabase.INCH,wheel.getInch());
+                newValues.put(CounterDatabase.CIRCUT,wheel.getCircuit());
+                mCounterDatabase.insertWheel(newValues);
+                mCounterDatabase.close();
+            }
+
+            //mEditor.putInt("WheelSizeScale",R.string.Circuitsystems);
+        }
+        else {
+            Toast.makeText(getBaseContext(), "Witaj ponownie", Toast.LENGTH_SHORT).show();
+        }
+        //mCursor = mCounterDatabase.getWheele();
+
+    }
+*/
+    private void initPreferences() {
+        mSharedPreferences = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE);
+        mEditor= mSharedPreferences.edit();
+
+        //todo z BD wartość pierwszą zamiast 2100
+        wheelCirc = Double.valueOf(mSharedPreferences.getString("wheelCirc","2100"));
+        mSharedPreferences.getString("WheelSizeScale",getString(R.string.Circuitsystems));
+        //mWeelCircPosition=mSharedPreferences.getInt("wheelCircPosition",0);
     }
 
     @Override
@@ -164,7 +228,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void setWheelCirc(Double wheelCirc) {
         this.wheelCirc = wheelCirc;
+        mEditor.putString("wheelCirc",Double.toString(wheelCirc));
+        mEditor.commit();
     }
+
+//    public int getWeelCircPosition(){
+//        return mWeelCircPosition;
+//    }
+//    public void  setWeelCircPosition(int WeelCircPosition){
+//        this.mWeelCircPosition = WeelCircPosition;
+//        mEditor.putInt("wheelCircPosition",WeelCircPosition);
+//        mEditor.commit();
+//    }
 
     public boolean isConnected() {
         return mConnected;
