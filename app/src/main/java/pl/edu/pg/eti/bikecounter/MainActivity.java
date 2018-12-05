@@ -2,8 +2,10 @@ package pl.edu.pg.eti.bikecounter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -30,8 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
-    //TODO: Czytać z bazy danych
-    private Double wheelCirc = 2100.;
+    private Double wheelCirc;
     private double distance = 0;
     private boolean mConnected = false;
     private boolean mPaused = false;
@@ -44,13 +45,19 @@ public class MainActivity extends AppCompatActivity {
 
 
     long startTime = 0;
+    private double mTotalTime = 0.001;
 
+
+    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
+    protected SharedPreferences mSharedPreferences;
+    protected SharedPreferences.Editor mEditor;
     //runs without a timer by reposting this handler at the end of the runnable
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
 
         @Override
         public void run() {
+            mTime = System.currentTimeMillis() - startTime;
             long millis = System.currentTimeMillis() - startTime + mRideTime;
             int seconds = (int) (millis / 1000);
             int minutes = seconds / 60;
@@ -58,7 +65,6 @@ public class MainActivity extends AppCompatActivity {
             minutes = minutes % 60;
             seconds = seconds % 60;
 
-            mTime = System.currentTimeMillis() - startTime;
 
             ((TextView)findViewById(R.id.total_time)).setText(String.format(Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
 
@@ -66,11 +72,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        initPreferences();
         initViewObject();
 
         if (savedInstanceState == null) {
@@ -81,6 +90,22 @@ public class MainActivity extends AppCompatActivity {
             mNavigationView.getMenu().getItem(0).setChecked(true);
         }
 
+    }
+
+    @Override
+    protected void onStop(){
+        mEditor.putBoolean("FirstUse",false);
+        mEditor.commit();
+        super.onStop();
+    }
+
+    private void initPreferences() {
+        mSharedPreferences = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE);
+        mEditor = mSharedPreferences.edit();
+
+
+        wheelCirc = Double.valueOf(mSharedPreferences.getString("wheelCirc","2100"));
+        mSharedPreferences.getString("WheelSizeScale",getString(R.string.circ_systems));
     }
 
     @Override
@@ -102,19 +127,15 @@ public class MainActivity extends AppCompatActivity {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else if(manager.getBackStackEntryCount() >= 2){
             super.onBackPressed();
-            //getSupportFragmentManager().popBackStack();
             Fragment currentFragment = manager.findFragmentById(R.id.container);
             if(currentFragment instanceof MainFragment){
                 mNavigationView.getMenu().getItem(0).setChecked(true);
             }
-            if(currentFragment instanceof Profile){
+            if(currentFragment instanceof Settings){
                 mNavigationView.getMenu().getItem(1).setChecked(true);
             }
-//            else if(currentFragment instanceof Settings){
-//                mNavigationView.getMenu().getItem(2).setChecked(true);
-//            }
             else if(currentFragment instanceof DeviceScanFragment){
-                mNavigationView.getMenu().getItem(3).setChecked(true);
+                mNavigationView.getMenu().getItem(2).setChecked(true);
             }
         } else {
             finish();
@@ -151,16 +172,13 @@ public class MainActivity extends AppCompatActivity {
                                     .commit();
                         }
                         break;
-                    case R.id.profile:
-                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("profile")) {
+                    case R.id.settings:
+                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("settings")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, Profile.newInstance(), "profile")
-                                    .addToBackStack("profile")
+                                    .replace(R.id.container, Settings.newInstance(), "settings")
+                                    .addToBackStack("settings")
                                     .commit();
                         }
-                        break;
-                    case R.id.settings:
-                        Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("configuration")) {
@@ -194,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void setWheelCirc(Double wheelCirc) {
         this.wheelCirc = wheelCirc;
+        mEditor.putString("wheelCirc",Double.toString(wheelCirc));
+        mEditor.commit();
     }
 
     public boolean isConnected() {

@@ -19,8 +19,8 @@
     <string name="really_want_to_exit">Czy na pewno chcesz wyjść?</string>
     <string name="csc_not_supported">Docelowe urządzenie nie wspiera serwisu pomiaru prędkości i kadencji!</string>
     <string name="successfully_connected">Połączono</string>
-    <string name="systemsWheelSize">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
-    <string name="wheelSize">Rozmiar koła</string>
+    <string name="systems_wheel_size">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
+    <string name="wheel_size">Rozmiar koła</string>
     <string name="without_bluetooth_unable_to_search" translatable="false">Nie można wyszukać urządzeń przy wyłączonym module bluetooth</string>
     <string name="without_location_unable_to_search">Nie można wyszukać urządzeń bez włączonej lokalizacji</string>
     <string name="turning_on_bluetooth">Uruchamiam moduł bluetooth</string>
@@ -36,4 +36,8 @@
     <string name="distance">DYSTANS</string>
     <string name="time">CZAS</string>
     <string name="km_h">km/h</string>
+    <string name="ETRTO_systems">"System ETRTO "</string>
+    <string name="circ_systems">Obwód (mm)</string>
+    <string name="inch_systems">System calowy</string>
+    <string name="wheel_size_scale">Wybierz rozmiar koła</string>
 </resources>

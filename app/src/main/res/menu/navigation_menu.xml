@@ -9,11 +9,6 @@
             android:icon="@drawable/ic_navigation_black_24dp">
         </item>
         <item
-            android:id="@+id/profile"
-            android:title="@string/profile"
-            android:icon="@drawable/ic_person_black_24dp">
-        </item>
-        <item
             android:id="@+id/settings"
             android:title="@string/settings"
             android:icon="@drawable/ic_settings_black_24dp">
