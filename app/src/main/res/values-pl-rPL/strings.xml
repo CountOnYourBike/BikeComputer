@@ -31,4 +31,9 @@
     <string name="counter">"Licznik: "</string>
     <string name="disconnected">Rozłączono</string>
     <string name="connected">Połączono</string>
+    <string name="speed">PRĘDKOŚĆ</string>
+    <string name="average_speed">ŚR. PRĘDKOŚĆ</string>
+    <string name="distance">DYSTANS</string>
+    <string name="time">CZAS</string>
+    <string name="km_h">km/h</string>
 </resources>

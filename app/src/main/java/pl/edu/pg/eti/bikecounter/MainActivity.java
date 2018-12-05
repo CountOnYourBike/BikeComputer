@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -16,7 +17,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
@@ -33,8 +37,34 @@ public class MainActivity extends AppCompatActivity {
     private boolean mPaused = false;
     private boolean mStarted = false;
     //TODO: Obsłużyć czas przejazdu
-    private double mTotalTime = 0.001;
+    // time of actual ride (since play pressed)
+    private long mRideTime = 0;
+    // time without actual ride
+    private long mTime = 0;
 
+
+    long startTime = 0;
+
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            long millis = System.currentTimeMillis() - startTime + mRideTime;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            int hours = minutes / 60;
+            minutes = minutes % 60;
+            seconds = seconds % 60;
+
+            mTime = System.currentTimeMillis() - startTime;
+
+            ((TextView)findViewById(R.id.total_time)).setText(String.format(Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
+
+            timerHandler.postDelayed(this, 500);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +222,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void setStarted(boolean mStarted) {
         this.mStarted = mStarted;
+        if(isStarted()) {
+            startTime = System.currentTimeMillis();
+            timerHandler.postDelayed(timerRunnable, 0);
+        }
+        else {
+            removeTimeCallback();
+            mRideTime = 0;
+            mTime = 0;
+            distance = 0;
+        }
+    }
+
+    public void removeTimeCallback() {
+        timerHandler.removeCallbacks(timerRunnable);
     }
 
     public boolean isPaused() {
@@ -200,6 +244,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void setPaused(boolean mPaused) {
         this.mPaused = mPaused;
+        if(isPaused()) {
+            removeTimeCallback();
+            mRideTime = getTotalTime();
+        }
+    }
+
+    public long getTotalTime() {
+        return mTime + mRideTime;
+    }
+
+    public double getTotalTimeInHours() {
+        double totalTimeinHours = (double)getTotalTime();
+        totalTimeinHours /= 3600000.;
+        return totalTimeinHours;
     }
 
     //it works only in activity, not in fragment
@@ -237,9 +295,5 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    public double getTotalTime() {
-        return mTotalTime;
     }
 }

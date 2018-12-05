@@ -30,6 +30,12 @@
     <string name="counter">Counter:</string>
     <string name="disconnected">Disconnected</string>
     <string name="connected">Connected</string>
+    <string name="speed">SPEED</string>
+    <string name="km" translatable="false">km</string>
+    <string name="km_h">kmph</string>
+    <string name="average_speed">AVG SPEED</string>
+    <string name="distance">DISTANCE</string>
+    <string name="time">TIME</string>
 
     <!-- Play Icon -->
     <string name="play_icon_upper_path_data" translatable="false">M 44 32 L 44 65 L 98 65 L 100 64 Z</string>

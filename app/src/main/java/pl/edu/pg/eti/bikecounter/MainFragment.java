@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
@@ -18,10 +19,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -33,10 +36,13 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.location.LocationServices;
+
+import java.util.Locale;
 
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
@@ -63,6 +69,7 @@ public class MainFragment extends Fragment {
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
         final View rootView = inflater.inflate(R.layout.main_fragment, container, false);
+
 
         // checking permission for location services
         if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -121,9 +128,12 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPause).setVisibility(View.VISIBLE);
                 fabPlay.setImageDrawable(getResources().getDrawable(R.drawable.pause_to_play_animation, null));
                 ((Animatable)fabPause.getDrawable()).start();
-                fabStop.startAnimation(fabOpen);
+                if(!((MainActivity)getActivity()).isPaused()) {
+                    fabStop.startAnimation(fabOpen);
+                    fabStop.setClickable(true);
+                    fillRideParams(null);
+                }
                 //TODO: Manage play
-                startLocationUpdates();
                 ((MainActivity)getActivity()).setStarted(true);
                 ((MainActivity)getActivity()).setPaused(false);
             }
@@ -136,9 +146,7 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
                 Drawable d = fabPlay.getDrawable();
                 ((Animatable)d).start();
-                fabStop.startAnimation(fabClose);
                 //TODO: Manage pause
-                stopLocationUpdates();
                 ((MainActivity)getActivity()).setPaused(true);
             }
         });
@@ -149,10 +157,11 @@ public class MainFragment extends Fragment {
                 getView().findViewById(R.id.fabPause).setVisibility(View.INVISIBLE);
                 getView().findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
                 Drawable d = fabPlay.getDrawable();
-                ((Animatable)d).start();
+                if(!((MainActivity)getActivity()).isPaused())
+                    ((Animatable)d).start();
                 fabStop.startAnimation(fabClose);
+                fabStop.setClickable(false);
                 //TODO: Manage stop
-                stopLocationUpdates();
                 ((MainActivity)getActivity()).setPaused(false);
                 ((MainActivity)getActivity()).setStarted(false);
             }
@@ -165,12 +174,17 @@ public class MainFragment extends Fragment {
                     return;
                 }
                 for (Location location : locationResult.getLocations()) {
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(location.getLatitude(),
-                                    location.getLongitude()), 18));
+                    CameraPosition cameraPos = new CameraPosition.Builder()
+                            .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .zoom(18)
+                            .bearing(location.getBearing())
+                            .tilt(40)
+                            .build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos), null);
                 }
             }
         };
+
         fillRideParams(null);
 
         return rootView;
@@ -185,14 +199,17 @@ public class MainFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        startLocationUpdates();
         getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        stopLocationUpdates();
         getActivity().unregisterReceiver(mGattUpdateReceiver);
         stopLocationUpdates();
+        ((MainActivity)getActivity()).removeTimeCallback();
     }
 
     @Override
@@ -201,6 +218,7 @@ public class MainFragment extends Fragment {
         try {
             getActivity().unregisterReceiver(mGattUpdateReceiver);
             stopLocationUpdates();
+            ((MainActivity)getActivity()).removeTimeCallback();
         } catch (IllegalArgumentException e) {
             // if the receiver is not registered
             e.printStackTrace();
@@ -211,6 +229,40 @@ public class MainFragment extends Fragment {
     public void onLowMemory() {
         super.onLowMemory();
         mMapView.onLowMemory();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        FloatingActionButton fabStop = getView().findViewById(R.id.fabStop);
+        FloatingActionButton fabPlay = getView().findViewById(R.id.fabPlay);
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            mMapView.setVisibility(View.GONE);
+            stopLocationUpdates();
+            float translationY = fabPlay.getY()-fabStop.getY();
+            float translationX = -translationY;
+            TranslateAnimation ta = new TranslateAnimation(-translationX, 0, -translationY, 0);
+            ta.setDuration(1000);
+            ta.setFillAfter(true);
+            if(fabStop.isClickable())
+                fabStop.startAnimation(ta);
+            fabStop.setTranslationX(translationX);
+            fabStop.setTranslationY(translationY);
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            mMapView.setVisibility(View.VISIBLE);
+            startLocationUpdates();
+            float translationX = fabPlay.getX()-fabStop.getX();
+            float translationY = -translationX;
+            TranslateAnimation ta = new TranslateAnimation(-translationX, 0, -translationY, 0);
+            ta.setDuration(1000);
+            ta.setFillAfter(true);
+            if(fabStop.isClickable())
+                fabStop.startAnimation(ta);
+            fabStop.setTranslationX(0);
+            fabStop.setTranslationY(0);
+        }
     }
 
     void updateLocationUI() {
@@ -241,12 +293,15 @@ public class MainFragment extends Fragment {
                 locationResult.addOnCompleteListener(getActivity(), new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful() && task.getResult()!=null) {
+                        if (task.isSuccessful() && task.getResult() != null) {
                             // Set the map's camera position to the current location of the device.
                             mLastKnownLocation = (Location) task.getResult();
-                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(mLastKnownLocation.getLatitude(),
-                                            mLastKnownLocation.getLongitude()), 15));
+
+                            CameraPosition cameraPos = new CameraPosition.Builder().target(new LatLng(mLastKnownLocation.getLatitude(),
+                                    mLastKnownLocation.getLongitude()))
+                                    .zoom(18).bearing(mLastKnownLocation.getBearing()).build();
+                            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPos), null);
+                            googleMap.getUiSettings().setMyLocationButtonEnabled(true);
                         } else {
                             Log.d("MainFragment", "Current location is null. Using defaults.");
                             Log.e("MainFragment", "Exception: %s", task.getException());
@@ -271,7 +326,7 @@ public class MainFragment extends Fragment {
                 Measurement measurement = Measurement.fromString(data);
                 //TODO: Podmienić z bazy danych
                 double wheelCirc = mainActivity.getWheelCirc();
-                mainActivity.addToDistance(measurement.getNumberOfRevolutions()*wheelCirc/100000);
+                mainActivity.addToDistance(measurement.getDistance(wheelCirc));
                 fillRideParams(measurement);
             }
         }
@@ -284,9 +339,12 @@ public class MainFragment extends Fragment {
         } else {
             speedTextView.setText(String.valueOf(measurement.getSpeed(mainActivity.getWheelCirc())));
         }
-        averageSpeedTextView.setText(String.valueOf(mainActivity.getDistance() / mainActivity.getTotalTime()));
+        double averageSpeed = mainActivity.getDistance() / (mainActivity.getTotalTimeInHours());
+        if(Double.isNaN(averageSpeed))
+            averageSpeedTextView.setText("0.0");
+        else
+            averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
         distanceTextView.setText(String.valueOf(mainActivity.getDistance()));
-        timeTextView.setText(String.valueOf(mainActivity.getTotalTime()));
         mainActivity.invalidateOptionsMenu();
     }
 
@@ -298,11 +356,10 @@ public class MainFragment extends Fragment {
 
     private void startLocationUpdates() {
         try {
-            mFusedLocationProviderClient.requestLocationUpdates(LocationRequest
-                                                                .create()
+            mFusedLocationProviderClient.requestLocationUpdates(LocationRequest.create()
                                                                 .setPriority(LocationRequest.PRIORITY_NO_POWER)
                                                                 .setInterval(5000)
-                                                                .setFastestInterval(500),
+                                                                .setFastestInterval(1000),
                     mLocationCallback,
                     null /* Looper */);
         } catch (SecurityException se) {

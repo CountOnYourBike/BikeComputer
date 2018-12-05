@@ -24,12 +24,16 @@ public class Measurement implements Serializable {
     }
 
     public double getSpeed(Double circ) {    // wheelCirc w mm
-        double speed = numberOfRevolutions*circ/1000.*1000./wheelEventTime; // m/s
+        double speed = circ*numberOfRevolutions / (double)wheelEventTime; // m/s
         speed = speed * 3.6;
         return Math.floor(speed*100)/100;
     }
 
     public Integer getNumberOfRevolutions() {
         return numberOfRevolutions;
+    }
+
+    public double getDistance(Double circ) { // in km
+        return circ * numberOfRevolutions / 1000000.;
     }
 }
