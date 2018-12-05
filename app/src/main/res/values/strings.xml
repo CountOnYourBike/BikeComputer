@@ -21,10 +21,6 @@
     <string name="successfully_connected">Successfully connected</string>
     <string name="wheelSize">Wheel size</string>
     <string name="systemsWheelSize">ETRTO system | Inch/metric system(french) | Circuit</string>
-    <string name="ETRTOsystems">ETRTO system</string>
-    <string name="Inchsystems">Inch/metric system(french)</string>
-    <string name="Circuitsystems">Circuit</string>
-
     <string name="without_bluetooth_unable_to_search">Without Bluetooth we cannot search for devices</string>
     <string name="turning_on_bluetooth">Turning on bluetooth</string>
     <string name="without_location_unable_to_search">Without location we cannot search for bluetooth devices</string>
@@ -51,6 +47,5 @@
     <!-- Path Name -->
     <string name="play_icon_top_path_name" translatable="false">upper</string>
     <string name="play_icon_bottom_path_name" translatable="false">bottom</string>
-    <string name="wheel_size_scale">Wheel size scale</string>
 
 </resources>

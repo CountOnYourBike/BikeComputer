@@ -23,7 +23,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -173,10 +172,6 @@ public class MainFragment extends Fragment {
             }
         };
         fillRideParams(null);
-
-        //((MainActivity)getActivity()).getWheelCirc().toString();
-        Toast toast = Toast.makeText(getContext(), ((MainActivity)getActivity()).getWheelCirc().toString()+"mm", Toast.LENGTH_SHORT);
-        toast.show();
 
         return rootView;
     }
