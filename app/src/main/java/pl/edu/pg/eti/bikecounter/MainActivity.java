@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
             if(currentFragment instanceof MainFragment){
                 mNavigationView.getMenu().getItem(0).setChecked(true);
             }
-            if(currentFragment instanceof Settings){
+            if(currentFragment instanceof SettingsFragment){
                 mNavigationView.getMenu().getItem(1).setChecked(true);
             }
             else if(currentFragment instanceof DeviceScanFragment){
@@ -175,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.settings:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("settings")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, Settings.newInstance(), "settings")
+                                    .replace(R.id.container, SettingsFragment.newInstance(), "settings")
                                     .addToBackStack("settings")
                                     .commit();
                         }

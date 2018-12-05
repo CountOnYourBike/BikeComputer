@@ -23,7 +23,7 @@
     <string name="systems_wheel_size">ETRTO system | Inch/metric system(french) | Circuit</string>
     <string name="ETRTO_systems">ETRTO system</string>
     <string name="inch_systems">Inch system</string>
-    <string name="circ_systems">Circuit (mm)</string>
+    <string name="circ_systems">Circumference</string>
 
     <string name="without_bluetooth_unable_to_search">Without Bluetooth we cannot search for devices</string>
     <string name="turning_on_bluetooth">Turning on bluetooth</string>

@@ -37,7 +37,7 @@
     <string name="time">CZAS</string>
     <string name="km_h">km/h</string>
     <string name="ETRTO_systems">"System ETRTO "</string>
-    <string name="circ_systems">Obwód (mm)</string>
+    <string name="circ_systems">Obwód</string>
     <string name="inch_systems">System calowy</string>
     <string name="wheel_size_scale">Wybierz rozmiar koła</string>
 </resources>

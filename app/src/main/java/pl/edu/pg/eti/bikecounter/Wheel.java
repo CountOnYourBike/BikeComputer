@@ -37,26 +37,26 @@ public class Wheel {
         } else {
 
             for(Wheel wheel : wheels) {
-                valuesList.add(wheel.mCirc.toString()+" mm");
+                valuesList.add(((int)Math.floor(wheel.mCirc))+" mm");
             }
         }
         return valuesList;
     }
 
-    public static double getCircValue(Context context, String System, String value, ArrayList<Wheel> wheels){
+    public static int getCircValue(Context context, String System, String value, ArrayList<Wheel> wheels){
 
         if(System.equals(context.getResources().getString(R.string.ETRTO_systems))) {
             for(Wheel wheel: wheels ) {
-                if (wheel.mETRTO.equals(value)) return wheel.mCirc;
+                if (wheel.mETRTO.equals(value)) return (int)Math.floor(wheel.mCirc);
             }
         } else if(System.equals(context.getResources().getString(R.string.inch_systems))) {
             for(Wheel wheel: wheels ){
-                if(wheel.mInch.equals(value))return wheel.mCirc;
+                if(wheel.mInch.equals(value))return (int)Math.floor(wheel.mCirc);
             }
         } else if(System.equals(context.getResources().getString(R.string.circ_systems))){
             for(Wheel wheel: wheels ){
                 if(wheel.mCirc.toString().equals(value.substring(0, value.length()-3)))
-                    return wheel.mCirc;
+                    return (int)Math.floor(wheel.mCirc);
             }
         }else {
             Log.i(TAG, "Not correct String value of wheel scale");

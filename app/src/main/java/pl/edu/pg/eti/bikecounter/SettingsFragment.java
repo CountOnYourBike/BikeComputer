@@ -13,17 +13,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-public class Settings extends Fragment implements AdapterView.OnItemSelectedListener {
+public class SettingsFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     Spinner mSpinner;
 
-    public static Settings newInstance() {
-        return new Settings();
+    public static SettingsFragment newInstance() {
+        return new SettingsFragment();
     }
-    private final static String TAG = Settings.class.getSimpleName();
+    private final static String TAG = SettingsFragment.class.getSimpleName();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -80,7 +81,6 @@ public class Settings extends Fragment implements AdapterView.OnItemSelectedList
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selected = parent.getItemAtPosition(position).toString();
-                Context context = parent.getContext();
 
                 double circuit = Wheel.getCircValue(getContext(),(((MainActivity)getActivity()).mSharedPreferences.getString("WheelSizeScaleInt",Integer.toString( R.string.circ_systems))),selected,Wheel.makeWheels());
                 ((MainActivity)getActivity()).setWheelCirc(circuit);
@@ -91,8 +91,6 @@ public class Settings extends Fragment implements AdapterView.OnItemSelectedList
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-
     }
 
     @Override
