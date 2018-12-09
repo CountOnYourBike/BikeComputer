@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,7 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
                 } else if (SystemsList.get(position).equals(getResources().getString(R.string.circ_systems))){
                     ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.circ_systems));
                 } else {
+                    Toast.makeText(getContext(),"Not correct String value of wheel scale", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Not correct String value of wheel scale");
                 }
                 ((MainActivity)getActivity()).mEditor.commit();
@@ -96,10 +98,6 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        // TODO: Use the ViewModel
-
-
     }
 
     @Override

@@ -50,16 +50,16 @@ public class Wheel {
         ArrayList<Wheel> wheels = makeWheels();
 
         if(System.equals(context.getResources().getString(R.string.ETRTO_systems))) {
-            for(Wheel wheel: wheels ) {
+            for(Wheel wheel: wheels) {
                 if (wheel.mETRTO.equals(value)) return (int)Math.floor(wheel.mCirc);
             }
         } else if(System.equals(context.getResources().getString(R.string.inch_systems))) {
-            for(Wheel wheel: wheels ){
+            for(Wheel wheel: wheels){
                 if(wheel.mInch.equals(value))return (int)Math.floor(wheel.mCirc);
             }
         } else if(System.equals(context.getResources().getString(R.string.circ_systems))){
-            for(Wheel wheel: wheels ){
-                if(wheel.mCirc.toString().equals(value.substring(0, value.length()-3)))
+            for(Wheel wheel: wheels){
+                if(wheel.mCirc.toString().split("\\.")[0].equals(value.substring(0, value.length()-3)))
                     return (int)Math.floor(wheel.mCirc);
             }
         } else {
