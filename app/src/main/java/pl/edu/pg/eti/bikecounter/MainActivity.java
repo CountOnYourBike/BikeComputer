@@ -2,9 +2,12 @@ package pl.edu.pg.eti.bikecounter;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -16,7 +19,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.Locale;
 
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
@@ -26,7 +32,44 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
-    public Double circuit = 2100.;
+    private double wheelCirc;
+    private double distance = 0;
+    private boolean mConnected = false;
+    private boolean mPaused = false;
+    private boolean mStarted = false;
+    //TODO: Obsłużyć czas przejazdu
+    // time of actual ride (since play pressed)
+    private long mRideTime = 0;
+    // time without actual ride
+    private long mTime = 0;
+
+
+    long startTime = 0;
+
+
+    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
+    protected SharedPreferences mSharedPreferences;
+    protected SharedPreferences.Editor mEditor;
+    //runs without a timer by reposting this handler at the end of the runnable
+    Handler timerHandler = new Handler();
+    Runnable timerRunnable = new Runnable() {
+
+        @Override
+        public void run() {
+            mTime = System.currentTimeMillis() - startTime;
+            long millis = System.currentTimeMillis() - startTime + mRideTime;
+            int seconds = (int) (millis / 1000);
+            int minutes = seconds / 60;
+            int hours = minutes / 60;
+            minutes = minutes % 60;
+            seconds = seconds % 60;
+
+
+            ((TextView)findViewById(R.id.total_time)).setText(String.format(Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
+
+            timerHandler.postDelayed(this, 500);
+        }
+    };
 
 
     @Override
@@ -34,6 +77,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        initPreferences();
         initViewObject();
 
         if (savedInstanceState == null) {
@@ -44,6 +89,22 @@ public class MainActivity extends AppCompatActivity {
             mNavigationView.getMenu().getItem(0).setChecked(true);
         }
 
+    }
+
+    @Override
+    protected void onStop(){
+        mEditor.putBoolean("FirstUse",false);
+        mEditor.commit();
+        super.onStop();
+    }
+
+    private void initPreferences() {
+        mSharedPreferences = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE);
+        mEditor = mSharedPreferences.edit();
+
+
+        wheelCirc = Double.valueOf(mSharedPreferences.getString("wheelCirc","2100"));
+        mSharedPreferences.getString("WheelSizeScale",getString(R.string.circ_systems));
     }
 
     @Override
@@ -65,19 +126,15 @@ public class MainActivity extends AppCompatActivity {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else if(manager.getBackStackEntryCount() >= 2){
             super.onBackPressed();
-            //getSupportFragmentManager().popBackStack();
             Fragment currentFragment = manager.findFragmentById(R.id.container);
             if(currentFragment instanceof MainFragment){
                 mNavigationView.getMenu().getItem(0).setChecked(true);
             }
-            if(currentFragment instanceof Profile){
+            if(currentFragment instanceof SettingsFragment){
                 mNavigationView.getMenu().getItem(1).setChecked(true);
             }
-//            else if(currentFragment instanceof Settings){
-//                mNavigationView.getMenu().getItem(2).setChecked(true);
-//            }
             else if(currentFragment instanceof DeviceScanFragment){
-                mNavigationView.getMenu().getItem(3).setChecked(true);
+                mNavigationView.getMenu().getItem(2).setChecked(true);
             }
         } else {
             finish();
@@ -91,7 +148,6 @@ public class MainActivity extends AppCompatActivity {
 
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
         mActionBarDrawerToggle.syncState();
-//        mActionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mNavigationView = findViewById(R.id.navigation_view);
@@ -110,26 +166,23 @@ public class MainActivity extends AppCompatActivity {
                     case R.id.home:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("home")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MainFragment.newInstance())
+                                    .replace(R.id.container, MainFragment.newInstance(), "home")
                                     .addToBackStack("home")
                                     .commit();
                         }
                         break;
-                    case R.id.profile:
-                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("profile")) {
+                    case R.id.settings:
+                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("settings")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, Profile.newInstance())
-                                    .addToBackStack("profile")
+                                    .replace(R.id.container, SettingsFragment.newInstance(), "settings")
+                                    .addToBackStack("settings")
                                     .commit();
                         }
-                        break;
-                    case R.id.settings:
-                        Toast.makeText(MainActivity.this, R.string.settings, Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.configuration:
                         if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("configuration")) {
                             getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, DeviceScanFragment.newInstance())
+                                    .replace(R.id.container, DeviceScanFragment.newInstance(), "configuration")
                                     .addToBackStack("configuration")
                                     .commit();
                         }
@@ -152,12 +205,78 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public Double getCircuit() {
-        return circuit;
+    public Double getWheelCirc() {
+        return wheelCirc;
     }
 
-    public void setCircuit(Double circuit) {
-        this.circuit = circuit;
+    public void setWheelCirc(Double wheelCirc) {
+        this.wheelCirc = wheelCirc;
+        mEditor.putString("wheelCirc",Double.toString(wheelCirc));
+        mEditor.commit();
+    }
+
+    public boolean isConnected() {
+        return mConnected;
+    }
+
+    public void setConnected(boolean connected) {
+        this.mConnected = connected;
+    }
+
+    public double getDistance() {
+        return Math.floor(distance*100)/100;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
+    }
+
+    public void addToDistance(double distanceToAdd) {
+        this.distance += distanceToAdd;
+    }
+
+    public boolean isStarted() {
+        return mStarted;
+    }
+
+    public void setStarted(boolean mStarted) {
+        this.mStarted = mStarted;
+        if(isStarted()) {
+            startTime = System.currentTimeMillis();
+            timerHandler.postDelayed(timerRunnable, 0);
+        }
+        else {
+            removeTimeCallback();
+            mRideTime = 0;
+            mTime = 0;
+            distance = 0;
+        }
+    }
+
+    public void removeTimeCallback() {
+        timerHandler.removeCallbacks(timerRunnable);
+    }
+
+    public boolean isPaused() {
+        return mPaused;
+    }
+
+    public void setPaused(boolean mPaused) {
+        this.mPaused = mPaused;
+        if(isPaused()) {
+            removeTimeCallback();
+            mRideTime = getTotalTime();
+        }
+    }
+
+    private long getTotalTime() {
+        return mTime + mRideTime;
+    }
+
+    public double getTotalTimeInHours() {
+        double totalTimeInHours = (double)getTotalTime();
+        totalTimeInHours /= 3600000.;
+        return totalTimeInHours;
     }
 
     //it works only in activity, not in fragment
@@ -171,10 +290,12 @@ public class MainActivity extends AppCompatActivity {
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
                     Toast.makeText(getBaseContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, MainFragment.newInstance(), "home")
+                            .commitNow();
                 } else {
                     // permission denied
-                    Toast.makeText(getBaseContext(), getString(R.string.permission_denied), Toast.LENGTH_SHORT).show();
-                    onBackPressed();
+                    Toast.makeText(getBaseContext(), getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show();
+                    //onBackPressed();
                 }
                 break;
             }
@@ -188,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             Toast.makeText(getBaseContext(),getString(R.string.without_bluetooth_unable_to_search), Toast.LENGTH_SHORT).show();
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance())
+                    .replace(R.id.container, MainFragment.newInstance(), "home")
                     .commitNow();
             return;
         }

@@ -14,13 +14,13 @@
     <string name="permission_needed">Wymagane pozwolenie</string>
     <string name="location_permission_message">Dostęp do lokalizacji jest wymagany do odnalezienia urządzeń Bluetooth</string>
     <string name="permission_granted">Udzielono dostępu</string>
-    <string name="permission_denied">Odmówiono dostępu</string>
+    <string name="location_permission_denied">Odmówiono dostępu lokalizacji.\nZezwól, aby korzystać z aplikacji!</string>
     <string name="app_name">Licznik Rowerowy</string>
     <string name="really_want_to_exit">Czy na pewno chcesz wyjść?</string>
     <string name="csc_not_supported">Docelowe urządzenie nie wspiera serwisu pomiaru prędkości i kadencji!</string>
-    <string name="connected">Połączono</string>
-    <string name="systemsWheelSize">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
-    <string name="wheelSize">Rozmiar koła</string>
+    <string name="successfully_connected">Połączono</string>
+    <string name="systems_wheel_size">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
+    <string name="wheel_size">Rozmiar koła</string>
     <string name="without_bluetooth_unable_to_search" translatable="false">Nie można wyszukać urządzeń przy wyłączonym module bluetooth</string>
     <string name="without_location_unable_to_search">Nie można wyszukać urządzeń bez włączonej lokalizacji</string>
     <string name="turning_on_bluetooth">Uruchamiam moduł bluetooth</string>
@@ -28,4 +28,16 @@
     <string name="open_location_settings">Otwórz ustawienia lokalizacji</string>
     <string name="location_disabled_nothing_will_be_found">Lokalizacja wyłączona, żadne urządzenie nie zostanie odnalezione</string>
     <string name="home">Strona główna</string>
+    <string name="counter">"Licznik: "</string>
+    <string name="disconnected">Rozłączono</string>
+    <string name="connected">Połączono</string>
+    <string name="speed">PRĘDKOŚĆ</string>
+    <string name="average_speed">ŚR. PRĘDKOŚĆ</string>
+    <string name="distance">DYSTANS</string>
+    <string name="time">CZAS</string>
+    <string name="km_h">km/h</string>
+    <string name="ETRTO_systems">"System ETRTO "</string>
+    <string name="circ_systems">Obwód</string>
+    <string name="inch_systems">System calowy</string>
+    <string name="wheel_size_scale">Wybierz rozmiar koła</string>
 </resources>
