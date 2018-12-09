@@ -1,7 +1,6 @@
 package pl.edu.pg.eti.bikecounter;
 
 import android.content.Context;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,69 +8,66 @@ import java.util.List;
 public class Wheel {
 
     private final static String TAG = Wheel.class.getSimpleName();
-    private int mId;
     private String mETRTO;
     private String mInch;
-    private Double mCirc;
+    private double mCirc;
 
-    private Wheel(String ETRTO, String Inch, Double Circ){
+    private Wheel(String ETRTO, String Inch, double Circ){
         this.mETRTO = ETRTO;
         this.mInch = Inch;
         this.mCirc = Circ;
     }
 
-    static List<String> getValuesList(Context context, String System){
+    static List<String> getValuesList(Context context, String system){
 
-        ArrayList<Wheel> wheels = makeWheels();
-
+        ArrayList<Wheel> wheels = getAllWheels();
         List<String> valuesList = new ArrayList<>();
 
-        if(System.equals(context.getResources().getString(R.string.ETRTO_systems))) {
-
+        if(system.equals(context.getResources().getString(R.string.ETRTO_system))) {
             for (Wheel wheel : wheels) {
                 valuesList.add(wheel.mETRTO);
             }
-        } else if(System.equals(context.getResources().getString(R.string.inch_systems))) {
-
+        } else if(system.equals(context.getResources().getString(R.string.inch_system))) {
             for (Wheel wheel : wheels) {
                 valuesList.add(wheel.mInch);
             }
-        } else {
-
+        } else if(system.equals(context.getResources().getString(R.string.circ_system))) {
             for(Wheel wheel : wheels) {
-                valuesList.add(((int)Math.floor(wheel.mCirc))+" mm");
+                int circAsInteger = (int) Math.floor(wheel.mCirc);
+                valuesList.add(circAsInteger + " mm");
             }
         }
         return valuesList;
     }
 
-    static int getCircValue(Context context, String System, String value){
+    static double getCircValue(Context context, String System, String value){
 
-        ArrayList<Wheel> wheels = makeWheels();
+        ArrayList<Wheel> wheels = getAllWheels();
 
-        if(System.equals(context.getResources().getString(R.string.ETRTO_systems))) {
+        if(System.equals(context.getResources().getString(R.string.ETRTO_system))) {
             for(Wheel wheel: wheels) {
-                if (wheel.mETRTO.equals(value)) return (int)Math.floor(wheel.mCirc);
+                if (wheel.mETRTO.equals(value))
+                    return wheel.mCirc;
             }
-        } else if(System.equals(context.getResources().getString(R.string.inch_systems))) {
+        } else if(System.equals(context.getResources().getString(R.string.inch_system))) {
             for(Wheel wheel: wheels){
-                if(wheel.mInch.equals(value))return (int)Math.floor(wheel.mCirc);
+                if(wheel.mInch.equals(value))
+                    return wheel.mCirc;
             }
-        } else if(System.equals(context.getResources().getString(R.string.circ_systems))){
+        } else if(System.equals(context.getResources().getString(R.string.circ_system))){
             for(Wheel wheel: wheels){
-                if(wheel.mCirc.toString().split("\\.")[0].equals(value.substring(0, value.length()-3)))
-                    return (int)Math.floor(wheel.mCirc);
+                // mCirc is in double notation (0.0), but value is in mm notation (0 mm)
+                if(Double.toString(wheel.mCirc).split("\\.")[0].equals(value.split(" ")[0]))
+                    return wheel.mCirc;
             }
         } else {
-            Log.i(TAG, "Not correct String value of wheel scale");
-            return 1;
+            throw new IllegalArgumentException("Not correct String value of wheel scale");
         }
-        Log.i(TAG, "Not correct String value of wheel scale");
-        return 1;
+        throw new IllegalArgumentException("Not correct String value of wheel scale");
     }
 
-    static ArrayList<Wheel> makeWheels(){
-        ArrayList<Wheel> wheels =new ArrayList<Wheel>();
+    private static ArrayList<Wheel> getAllWheels(){
+        ArrayList<Wheel> wheels = new ArrayList<Wheel>();
         wheels.add(new Wheel("47-203 "," 12\" x1.75 ", 935.));
         wheels.add(new Wheel("54-203 "," 12\" x1.95 ", 940.));
         wheels.add(new Wheel("40-254 "," 14\" x1.50 ", 1020.));
@@ -147,29 +143,5 @@ public class Wheel {
         wheels.add(new Wheel("60-622 "," 29\" x2.3 ", 2326.));
 
         return wheels;
-    }
-
-    public int getId() {
-        return mId;
-    }
-
-    public void setId(int id) {
-        mId = id;
-    }
-
-    public String getETRTO() {
-        return mETRTO;
-    }
-
-    public void setETRTO(String ETRTO) {
-        mETRTO = ETRTO;
-    }
-
-    public String getInch() {
-        return mInch;
-    }
-
-    public void setInch(String inch) {
-        mInch = inch;
     }
 }

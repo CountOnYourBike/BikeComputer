@@ -28,16 +28,17 @@
     <string name="open_location_settings">Otwórz ustawienia lokalizacji</string>
     <string name="location_disabled_nothing_will_be_found">Lokalizacja wyłączona, żadne urządzenie nie zostanie odnalezione</string>
     <string name="home">Strona główna</string>
-    <string name="counter">"Licznik: "</string>
+    <string name="status">"Status: "</string>
     <string name="disconnected">Rozłączono</string>
+    <string name="connecting">Łączenie…</string>
     <string name="connected">Połączono</string>
     <string name="speed">PRĘDKOŚĆ</string>
     <string name="average_speed">ŚR. PRĘDKOŚĆ</string>
     <string name="distance">DYSTANS</string>
     <string name="time">CZAS</string>
     <string name="km_h">km/h</string>
-    <string name="ETRTO_systems">"System ETRTO "</string>
-    <string name="circ_systems">Obwód</string>
-    <string name="inch_systems">System calowy</string>
+    <string name="ETRTO_system">"System ETRTO "</string>
+    <string name="circ_system">Obwód</string>
+    <string name="inch_system">System calowy</string>
     <string name="wheel_size_scale">Wybierz rozmiar koła</string>
 </resources>

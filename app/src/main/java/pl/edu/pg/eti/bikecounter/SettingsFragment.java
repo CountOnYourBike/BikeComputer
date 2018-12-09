@@ -43,12 +43,12 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
-                if (SystemsList.get(position).equals(getResources().getString(R.string.ETRTO_systems))){
-                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.ETRTO_systems));
-                } else if (SystemsList.get(position).equals(getResources().getString(R.string.inch_systems))){
-                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.inch_systems));
-                } else if (SystemsList.get(position).equals(getResources().getString(R.string.circ_systems))){
-                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.circ_systems));
+                if (SystemsList.get(position).equals(getResources().getString(R.string.ETRTO_system))){
+                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.ETRTO_system));
+                } else if (SystemsList.get(position).equals(getResources().getString(R.string.inch_system))){
+                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.inch_system));
+                } else if (SystemsList.get(position).equals(getResources().getString(R.string.circ_system))){
+                    ((MainActivity)getActivity()).mEditor.putString("WheelSizeScaleInt", getString(R.string.circ_system));
                 } else {
                     Toast.makeText(getContext(),"Not correct String value of wheel scale", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Not correct String value of wheel scale");
@@ -72,7 +72,7 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
 
     private void setSpinnerValues(View view){
         MainActivity mainActivity = (MainActivity)getActivity();
-        final List<String> ValueList = Wheel.getValuesList(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_systems))));
+        final List<String> ValueList = Wheel.getValuesList(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_system))));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(mainActivity, android.R.layout.simple_spinner_item,ValueList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -84,7 +84,7 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
                 String selected = parent.getItemAtPosition(position).toString();
 
                 MainActivity mainActivity = (MainActivity)getActivity();
-                double circuit = Wheel.getCircValue(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_systems))),selected);
+                double circuit = Wheel.getCircValue(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_system))),selected);
                 mainActivity.setWheelCirc(circuit);
                 mainActivity.mEditor.putString("wheelCircInSelectedSystem",selected);
                 mainActivity.mEditor.commit();
