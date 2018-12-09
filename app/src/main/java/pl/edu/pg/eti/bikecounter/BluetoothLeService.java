@@ -153,7 +153,7 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    public class LocalBinder extends Binder {
+    class LocalBinder extends Binder {
         BluetoothLeService getService() {
             return BluetoothLeService.this;
         }
@@ -298,6 +298,7 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
         // This is specific to Heart Rate Measurement.
+        // TODO: zmienić ten komentarz XD
         if (UUID_CSC_MEASUREMENT.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(CyclingGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));

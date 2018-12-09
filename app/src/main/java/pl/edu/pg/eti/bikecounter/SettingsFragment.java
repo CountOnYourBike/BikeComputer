@@ -1,6 +1,5 @@
 package pl.edu.pg.eti.bikecounter;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +12,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
@@ -58,7 +56,7 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
                 ((MainActivity)getActivity()).mEditor.putString("WheelSizeScale", SystemsList.get(position));
                 ((MainActivity)getActivity()).mEditor.commit();
 
-                setValuesSpinner(view);
+                setSpinnerValues(view);
             }
 
             @Override
@@ -70,10 +68,11 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         return view;
     }
 
-    private void setValuesSpinner(View view){
-        final List<String> ValueList = Wheel.getValuesList(getContext(),(((MainActivity)getActivity()).mSharedPreferences.getString("WheelSizeScaleInt",Integer.toString(R.string.circ_systems))),Wheel.makeWheels());
+    private void setSpinnerValues(View view){
+        MainActivity mainActivity = (MainActivity)getActivity();
+        final List<String> ValueList = Wheel.getValuesList(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_systems))));
 
-        ArrayAdapter<String> adapter =new  ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item,ValueList);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mainActivity, android.R.layout.simple_spinner_item,ValueList);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter);
         mSpinner.setSelection(ValueList.indexOf(((MainActivity)getActivity()).mSharedPreferences.getString("wheelCircInSelectedSystem",ValueList.get(0))));
@@ -82,10 +81,11 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selected = parent.getItemAtPosition(position).toString();
 
-                double circuit = Wheel.getCircValue(getContext(),(((MainActivity)getActivity()).mSharedPreferences.getString("WheelSizeScaleInt",Integer.toString( R.string.circ_systems))),selected,Wheel.makeWheels());
-                ((MainActivity)getActivity()).setWheelCirc(circuit);
-                ((MainActivity)getActivity()).mEditor.putString("wheelCircInSelectedSystem",selected);
-                ((MainActivity)getActivity()).mEditor.commit();
+                MainActivity mainActivity = (MainActivity)getActivity();
+                double circuit = Wheel.getCircValue(getContext(),(mainActivity.mSharedPreferences.getString("WheelSizeScaleInt", Integer.toString(R.string.circ_systems))),selected);
+                mainActivity.setWheelCirc(circuit);
+                mainActivity.mEditor.putString("wheelCircInSelectedSystem",selected);
+                mainActivity.mEditor.commit();
             }
             @Override
             public void onNothingSelected(AdapterView<?> parent) {

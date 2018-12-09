@@ -50,7 +50,6 @@ public class MainFragment extends Fragment {
     private TextView speedTextView;
     private TextView averageSpeedTextView;
     private TextView distanceTextView;
-    private TextView timeTextView;
     MapView mMapView;
     private GoogleMap googleMap;
     boolean mLocationPermissionGranted;
@@ -110,7 +109,6 @@ public class MainFragment extends Fragment {
         speedTextView = rootView.findViewById(R.id.speed);
         averageSpeedTextView = rootView.findViewById(R.id.average_speed);
         distanceTextView = rootView.findViewById(R.id.distance);
-        timeTextView = rootView.findViewById(R.id.total_time);
 
         final FloatingActionButton fabPlay = rootView.findViewById(R.id.fabPlay);
         final FloatingActionButton fabPause = rootView.findViewById(R.id.fabPause);
@@ -334,16 +332,16 @@ public class MainFragment extends Fragment {
     private void fillRideParams(Measurement measurement) {
         MainActivity mainActivity = (MainActivity)getActivity();
         if (measurement == null) {
-            speedTextView.setText("0.0");
+            speedTextView.setText("0.00");
         } else {
-            speedTextView.setText(String.valueOf(measurement.getSpeed(mainActivity.getWheelCirc())));
+            speedTextView.setText(String.format(Locale.ENGLISH, "%.2f", measurement.getSpeed(mainActivity.getWheelCirc())));
         }
         double averageSpeed = mainActivity.getDistance() / (mainActivity.getTotalTimeInHours());
         if(Double.isNaN(averageSpeed))
-            averageSpeedTextView.setText("0.0");
+            averageSpeedTextView.setText("0.00");
         else
             averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
-        distanceTextView.setText(String.valueOf(mainActivity.getDistance()));
+        distanceTextView.setText(String.format(Locale.ENGLISH, "%.2f", mainActivity.getDistance()));
         mainActivity.invalidateOptionsMenu();
     }
 

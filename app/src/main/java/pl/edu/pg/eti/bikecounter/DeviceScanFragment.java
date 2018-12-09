@@ -72,9 +72,9 @@ public class DeviceScanFragment extends Fragment {
     private String mDeviceAddress;
     private boolean mScanning;
     private Handler mHandler;
-    private ListView mDevicesListView;
-    private Button button_scan;
-    private Button button_stop;
+    ListView mDevicesListView;
+    Button button_scan;
+    Button button_stop;
     private View mView;
 
     public static final int REQUEST_ENABLE_BT = 1;
@@ -112,7 +112,9 @@ public class DeviceScanFragment extends Fragment {
         if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance()).commitNow();
+                    .replace(R.id.container, MainFragment.newInstance(), "home")
+                    .addToBackStack("home")
+                    .commit();
         }
 
         // checking permission for location services
@@ -132,7 +134,9 @@ public class DeviceScanFragment extends Fragment {
         if (mBTAdapter == null) {
             Toast.makeText(getActivity().getApplicationContext(), R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance()).commitNow();
+                    .replace(R.id.container, MainFragment.newInstance(), "home")
+                    .addToBackStack("home")
+                    .commit();
             return mView;
         }
 
@@ -215,7 +219,9 @@ public class DeviceScanFragment extends Fragment {
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.container, MainFragment.newInstance()).commitNow();
+                        .replace(R.id.container, MainFragment.newInstance(), "home")
+                        .addToBackStack("home")
+                        .commit();
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);

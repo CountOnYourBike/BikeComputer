@@ -14,13 +14,15 @@ public class Wheel {
     private String mInch;
     private Double mCirc;
 
-    public Wheel(String ETRTO, String Inch, Double Circ){
+    private Wheel(String ETRTO, String Inch, Double Circ){
         this.mETRTO = ETRTO;
         this.mInch = Inch;
         this.mCirc = Circ;
     }
 
-    public static List<String> getValuesList(Context context, String System, ArrayList<Wheel> wheels){
+    static List<String> getValuesList(Context context, String System){
+
+        ArrayList<Wheel> wheels = makeWheels();
 
         List<String> valuesList = new ArrayList<>();
 
@@ -43,7 +45,9 @@ public class Wheel {
         return valuesList;
     }
 
-    public static int getCircValue(Context context, String System, String value, ArrayList<Wheel> wheels){
+    static int getCircValue(Context context, String System, String value){
+
+        ArrayList<Wheel> wheels = makeWheels();
 
         if(System.equals(context.getResources().getString(R.string.ETRTO_systems))) {
             for(Wheel wheel: wheels ) {
@@ -58,7 +62,7 @@ public class Wheel {
                 if(wheel.mCirc.toString().equals(value.substring(0, value.length()-3)))
                     return (int)Math.floor(wheel.mCirc);
             }
-        }else {
+        } else {
             Log.i(TAG, "Not correct String value of wheel scale");
             return 1;
         }
@@ -66,7 +70,7 @@ public class Wheel {
         return 1;
     }
 
-    public static ArrayList<Wheel> makeWheels(){
+    static ArrayList<Wheel> makeWheels(){
         ArrayList<Wheel> wheels =new ArrayList<Wheel>();
         wheels.add(new Wheel("47-203 "," 12\" x1.75 ", 935.));
         wheels.add(new Wheel("54-203 "," 12\" x1.95 ", 940.));

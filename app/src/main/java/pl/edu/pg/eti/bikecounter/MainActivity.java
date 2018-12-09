@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mActionBarDrawerToggle;
     private NavigationView mNavigationView;
-    private Double wheelCirc;
+    private double wheelCirc;
     private double distance = 0;
     private boolean mConnected = false;
     private boolean mPaused = false;
@@ -45,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     long startTime = 0;
-    private double mTotalTime = 0.001;
 
 
     private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
@@ -270,14 +269,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public long getTotalTime() {
+    private long getTotalTime() {
         return mTime + mRideTime;
     }
 
     public double getTotalTimeInHours() {
-        double totalTimeinHours = (double)getTotalTime();
-        totalTimeinHours /= 3600000.;
-        return totalTimeinHours;
+        double totalTimeInHours = (double)getTotalTime();
+        totalTimeInHours /= 3600000.;
+        return totalTimeInHours;
     }
 
     //it works only in activity, not in fragment
