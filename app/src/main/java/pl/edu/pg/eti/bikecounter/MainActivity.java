@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             wheelCirc = Wheel.getCircValue(getApplicationContext(), wheelSizeSystem, wheelSizeString);
         } catch (IllegalArgumentException ex) {
-            wheelCirc = Integer.parseInt(DEFAULT_WHEEL_CIRC);
+            wheelCirc = Integer.parseInt(DEFAULT_WHEEL_CIRC.split(" ")[0]);
             wheelSizeSystem = getString(R.string.circ_system);
             wheelSizeString = DEFAULT_WHEEL_CIRC;
         }

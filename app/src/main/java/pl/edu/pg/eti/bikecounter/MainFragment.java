@@ -201,7 +201,7 @@ public class MainFragment extends Fragment {
     public void onPause() {
         super.onPause();
         stopLocationUpdates();
-        getActivity().unregisterReceiver(mGattUpdateReceiver);
+        mainActivity.unregisterReceiver(mGattUpdateReceiver);
         stopLocationUpdates();
         mainActivity.removeTimeCallback();
     }
@@ -210,9 +210,9 @@ public class MainFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         try {
-            getActivity().unregisterReceiver(mGattUpdateReceiver);
+            mainActivity.unregisterReceiver(mGattUpdateReceiver);
             stopLocationUpdates();
-            ((MainActivity)getActivity()).removeTimeCallback();
+            mainActivity.removeTimeCallback();
         } catch (IllegalArgumentException e) {
             // if the receiver is not registered
             e.printStackTrace();

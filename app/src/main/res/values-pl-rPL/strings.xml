@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="profile">Profil</string>
     <string name="settings">Ustawienia</string>
     <string name="configuration">Konfiguracja</string>
     <string name="exit">Wyjdź</string>
@@ -12,21 +11,34 @@
     <string name="error_bluetooth_not_supported">Bluetooth nie jest wspierany</string>
     <string name="unknown_device">Nieznane urządzenie</string>
     <string name="permission_needed">Wymagane pozwolenie</string>
-    <string name="location_permission_message">Dostęp do lokalizacji jest wymagany do odnalezienia urządzeń Bluetooth</string>
+    <string name="location_permission_message">
+        Dostęp do lokalizacji jest wymagany do odnalezienia urządzeń Bluetooth
+    </string>
     <string name="permission_granted">Udzielono dostępu</string>
-    <string name="location_permission_denied">Odmówiono dostępu lokalizacji.\nZezwól, aby korzystać z aplikacji!</string>
+    <string name="location_permission_denied">
+        Odmówiono dostępu lokalizacji.\n
+        Zezwól, aby korzystać z aplikacji!
+    </string>
     <string name="app_name">Licznik Rowerowy</string>
     <string name="really_want_to_exit">Czy na pewno chcesz wyjść?</string>
-    <string name="csc_not_supported">Docelowe urządzenie nie wspiera serwisu pomiaru prędkości i kadencji!</string>
+    <string name="csc_not_supported">
+        Docelowe urządzenie nie wspiera serwisu pomiaru prędkości i kadencji!
+    </string>
     <string name="successfully_connected">Połączono</string>
-    <string name="systems_wheel_size">System ETRTO | System calowy/metryczny(francuski) | Obwód</string>
-    <string name="wheel_size">Rozmiar koła</string>
-    <string name="without_bluetooth_unable_to_search" translatable="false">Nie można wyszukać urządzeń przy wyłączonym module bluetooth</string>
-    <string name="without_location_unable_to_search">Nie można wyszukać urządzeń bez włączonej lokalizacji</string>
+    <string name="without_bluetooth_unable_to_search">
+        Nie można wyszukać urządzeń przy wyłączonym module bluetooth
+    </string>
+    <string name="without_location_unable_to_search">
+        Nie można wyszukać urządzeń bez włączonej lokalizacji
+    </string>
     <string name="turning_on_bluetooth">Uruchamiam moduł bluetooth</string>
-    <string name="location_needed_for_searching_devices">Lokalizacja jest wymagana, by skanować urządzenia</string>
+    <string name="location_needed_for_searching_devices">
+        Lokalizacja jest wymagana, by skanować urządzenia
+    </string>
     <string name="open_location_settings">Otwórz ustawienia lokalizacji</string>
-    <string name="location_disabled_nothing_will_be_found">Lokalizacja wyłączona, żadne urządzenie nie zostanie odnalezione</string>
+    <string name="location_disabled_nothing_will_be_found">
+        Lokalizacja wyłączona, żadne urządzenie nie zostanie odnalezione
+    </string>
     <string name="home">Strona główna</string>
     <string name="status">"Status: "</string>
     <string name="disconnected">Rozłączono</string>
@@ -41,4 +53,5 @@
     <string name="circ_system">Obwód</string>
     <string name="inch_system">System calowy</string>
     <string name="wheel_size_scale">Wybierz rozmiar koła</string>
+    <string name="cyclist_on_the_bike">Rowerzysta</string>
 </resources>
