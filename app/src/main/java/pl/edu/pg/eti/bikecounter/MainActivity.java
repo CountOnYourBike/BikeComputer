@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     private long mTime = 0;
     long startTime = 0;
 
-    private static String DEFAULT_WHEEL_CIRC = "2100";
+    private static final String DEFAULT_WHEEL_CIRC = "2100 mm";
 
 
     // runs without a timer by re-posting this handler at the end of the runnable
@@ -61,7 +61,8 @@ public class MainActivity extends AppCompatActivity {
             seconds = seconds % 60;
 
             ((TextView) findViewById(R.id.total_time))
-                    .setText(String.format(Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
+                    .setText(String.format(
+                            Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
 
             timerHandler.postDelayed(this, 500);
         }
@@ -91,13 +92,24 @@ public class MainActivity extends AppCompatActivity {
         mSharedPreferences = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE);
         mEditor = mSharedPreferences.edit();
 
-        mSharedPreferences.getString("WheelSizeScale", getString(R.string.circ_system));
-        String wheelCircString = (mSharedPreferences.getString("wheelCirc", DEFAULT_WHEEL_CIRC));
-        if(wheelCircString != null) {
-            wheelCirc = Double.valueOf(wheelCircString);
-        } else {
-            wheelCirc = Double.valueOf(DEFAULT_WHEEL_CIRC);
+        String wheelSizeSystem =
+                mSharedPreferences.getString("WheelSizeSystem", null);
+        String wheelSizeString = (mSharedPreferences.getString("WheelSize", null));
+        if(wheelSizeString == null || wheelSizeSystem == null) {
+            wheelSizeSystem = getString(R.string.circ_system);
+            wheelSizeString = DEFAULT_WHEEL_CIRC;
         }
+        try {
+            wheelCirc = Wheel.getCircValue(getApplicationContext(), wheelSizeSystem, wheelSizeString);
+        } catch (IllegalArgumentException ex) {
+            wheelCirc = Integer.parseInt(DEFAULT_WHEEL_CIRC);
+            wheelSizeSystem = getString(R.string.circ_system);
+            wheelSizeString = DEFAULT_WHEEL_CIRC;
+        }
+
+        mEditor.putString("WheelSizeSystem", wheelSizeSystem);
+        mEditor.putString("WheelSize", wheelSizeString);
+        mEditor.apply();
     }
 
     @Override
@@ -158,7 +170,8 @@ public class MainActivity extends AppCompatActivity {
                         if(!lastOpenedFragmentName.equals("home")) {
                             getSupportFragmentManager()
                                     .beginTransaction()
-                                    .replace(R.id.container, MainFragment.newInstance(), "home")
+                                    .replace(R.id.container, MainFragment.newInstance(),
+                                            "home")
                                     .addToBackStack("home")
                                     .commit();
                         }
@@ -167,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
                         if(!lastOpenedFragmentName.equals("settings")) {
                             getSupportFragmentManager()
                                     .beginTransaction()
-                                    .replace(R.id.container, SettingsFragment.newInstance(), "settings")
+                                    .replace(R.id.container, SettingsFragment.newInstance(),
+                                            "settings")
                                     .addToBackStack("settings")
                                     .commit();
                         }
@@ -176,13 +190,15 @@ public class MainActivity extends AppCompatActivity {
                         if(!lastOpenedFragmentName.equals("configuration")) {
                             getSupportFragmentManager()
                                     .beginTransaction()
-                                    .replace(R.id.container, DeviceScanFragment.newInstance(), "configuration")
+                                    .replace(R.id.container, DeviceScanFragment.newInstance(),
+                                            "configuration")
                                     .addToBackStack("configuration")
                                     .commit();
                         }
                         break;
                     case R.id.exit:
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        AlertDialog.Builder builder =
+                                new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(getString(R.string.exit))
                                 .setMessage(getString(R.string.really_want_to_exit))
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -206,7 +222,7 @@ public class MainActivity extends AppCompatActivity {
     public void setWheelCirc(Double wheelCirc) {
         this.wheelCirc = wheelCirc;
         mEditor.putString("wheelCirc", Double.toString(wheelCirc));
-        mEditor.commit();
+        mEditor.apply();
     }
 
     public boolean isConnected() {

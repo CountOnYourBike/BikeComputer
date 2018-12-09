@@ -294,7 +294,7 @@ public class DeviceScanFragment extends Fragment {
                     Log.d(TAG, "Connecting");
                     progressBar.setVisibility(View.VISIBLE);
                     mainActivity.setConnected(false);
-                    counterConnectionState.setText(getResources().getText(R.string.disconnected));
+                    counterConnectionState.setText(getText(R.string.disconnected));
                     mainActivity.invalidateOptionsMenu();
                     break;
 
@@ -302,7 +302,7 @@ public class DeviceScanFragment extends Fragment {
                     Log.d(TAG, "Connected");
                     progressBar.setVisibility(View.INVISIBLE);
                     mainActivity.setConnected(true);
-                    counterConnectionState.setText(getResources().getText(R.string.connected));
+                    counterConnectionState.setText(getText(R.string.connected));
                     mainActivity.invalidateOptionsMenu();
                     break;
 
@@ -310,7 +310,7 @@ public class DeviceScanFragment extends Fragment {
                     Log.d(TAG, "Disconnected");
                     progressBar.setVisibility(View.INVISIBLE);
                     mainActivity.setConnected(false);
-                    counterConnectionState.setText(getResources().getText(R.string.disconnected));
+                    counterConnectionState.setText(getText(R.string.disconnected));
                     mainActivity.invalidateOptionsMenu();
                     break;
 
@@ -459,7 +459,7 @@ public class DeviceScanFragment extends Fragment {
             mView.findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
             mView.findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
             ((TextView) mView.findViewById(R.id.counter_connection_state))
-                    .setText(getResources().getString(R.string.disconnected));
+                    .setText(getString(R.string.disconnected));
             mScanning = true;
             mainActivity.invalidateOptionsMenu();
         }

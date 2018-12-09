@@ -37,7 +37,7 @@
     <string name="distance">DYSTANS</string>
     <string name="time">CZAS</string>
     <string name="km_h">km/h</string>
-    <string name="ETRTO_system">"System ETRTO "</string>
+    <string name="ETRTO_system">System ETRTO</string>
     <string name="circ_system">Obwód</string>
     <string name="inch_system">System calowy</string>
     <string name="wheel_size_scale">Wybierz rozmiar koła</string>

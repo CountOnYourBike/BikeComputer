@@ -21,7 +21,7 @@
             android:textSize="20sp"/>
 
         <Spinner
-            android:id="@+id/scaleSpinner"
+            android:id="@+id/systemSpinner"
             android:layout_width="match_parent"
             android:layout_marginStart="100sp"
             android:layout_marginEnd="100sp"
@@ -38,7 +38,7 @@
             android:layout_marginStart="100sp"
             android:layout_marginEnd="100sp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/scaleSpinner"
+            android:layout_below="@+id/systemSpinner"
             android:layout_marginTop="30dp"
             android:textSize="20sp"
             android:textAlignment="center"
