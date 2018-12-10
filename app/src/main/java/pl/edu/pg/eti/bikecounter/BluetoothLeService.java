@@ -65,8 +65,8 @@ public class BluetoothLeService extends Service {
     public final static String EXTRA_DATA =
             "pl.edu.pg.eti.bikecounter.EXTRA_DATA";
 
-    public final static UUID UUID_CSC_MEASUREMENT =
-            UUID.fromString(CyclingGattAttributes.CSC_MEASUREMENT_CHARACTERISTICS);
+    public final static UUID UUID_CSC_MEASUREMENT_CHARACTERISTIC =
+            UUID.fromString(CyclingGattAttributes.CSC_MEASUREMENT_CHARACTERISTIC);
 
 
     // Implements callback methods for GATT events that the app cares about.  For example,
@@ -132,10 +132,10 @@ public class BluetoothLeService extends Service {
                                  final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
-        // This is special handling for the Heart Rate Measurement profile.  Data parsing is
+        // This is special handling for the Cycle Speed and Cadence profile. Data parsing is
         // carried out as per profile specifications:
-        // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
-        if (UUID_CSC_MEASUREMENT.equals(characteristic.getUuid())) {
+        // https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.cycling_speed_and_cadence.xml
+        if (UUID_CSC_MEASUREMENT_CHARACTERISTIC.equals(characteristic.getUuid())) {
             final Integer numberOfRevs = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT32, 1);
             final Integer wheelEventTime = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT16, 5);
             Measurement measurement = new Measurement(numberOfRevs, wheelEventTime);
@@ -230,7 +230,7 @@ public class BluetoothLeService extends Service {
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
-            Log.w(TAG, "Device not found.  Unable to connect.");
+            Log.w(TAG, "Device not found. Unable to connect.");
             return false;
         }
         // We want to directly connect to the device, so we are setting the autoConnect
@@ -287,7 +287,7 @@ public class BluetoothLeService extends Service {
      * Enables or disables notification on a give characteristic.
      *
      * @param characteristic Characteristic to act on.
-     * @param enabled If true, enable notification.  False otherwise.
+     * @param enabled If true, enable notification. False otherwise.
      */
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
@@ -297,9 +297,8 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This is specific to Heart Rate Measurement.
-        // TODO: zmienić ten komentarz XD
-        if (UUID_CSC_MEASUREMENT.equals(characteristic.getUuid())) {
+        // This is specific to Cycling Speed and Cadence.
+        if (UUID_CSC_MEASUREMENT_CHARACTERISTIC.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(CyclingGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);

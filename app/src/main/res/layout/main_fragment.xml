@@ -19,68 +19,73 @@
             android:layout_weight="4"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-                <TableLayout
+            <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="5dp"
-                    android:layout_marginStart="5dp">
+                    android:layout_marginEnd="2dp"
+                    android:layout_marginStart="2dp">
 
                     <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="4">
 
-                        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                            xmlns:app="http://schemas.android.com/apk/res-auto"
+                        <FrameLayout
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_width="match_parent"
-                            android:gravity="bottom|center">
+                            android:layout_weight="3">
 
                             <TextView
                                 android:id="@+id/speed"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_gravity="start|top"
-                                android:layout_weight="3"
-                                android:gravity="bottom|center"
                                 android:text="0.0"
                                 android:textColor="@color/colorBlack"
-                                android:textSize="20sp"
                                 android:autoSizeTextType="uniform"
-                                android:autoSizeMinTextSize="40sp"
-                                android:autoSizeMaxTextSize="90sp"
-                                app:autoSizeStepGranularity="5sp"/>
-                            <TextView android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="@string/km_h"/>
+                                android:lines="1"
+                                android:gravity="bottom|center"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textSize="20sp"
+                            android:paddingBottom="10sp"
+                            android:lines="1"
+                            android:text="@string/km_h"
+                            android:gravity="bottom|center"/>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="3">
 
                             <TextView
                                 android:id="@+id/average_speed"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_gravity="start|top"
-                                android:layout_weight="3"
-                                android:gravity="bottom|center"
                                 android:text="0.0"
                                 android:textColor="@color/colorBlack"
                                 android:autoSizeTextType="uniform"
-                                android:autoSizeMinTextSize="40sp"
-                                android:autoSizeMaxTextSize="90sp"
-                                app:autoSizeStepGranularity="5sp"/>
-                            <TextView android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="@string/km_h"
-                                android:paddingEnd="2sp"/>
-                        </LinearLayout>
+                                android:lines="1"
+                                android:gravity="bottom|center"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:lines="1"
+                            android:gravity="bottom|center"
+                            android:textSize="20sp"
+                            android:text="@string/km_h"
+                            android:paddingBottom="10sp"/>
+
                     </TableRow>
+
                     <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
@@ -89,7 +94,6 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_gravity="start|top"
                             android:layout_weight="1"
                             android:gravity="bottom|center"
                             android:text="@string/speed"
@@ -98,74 +102,72 @@
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_gravity="start|top"
                             android:layout_weight="1"
                             android:gravity="bottom|center"
                             android:text="@string/average_speed"
-                            android:textSize="20sp"
-                            android:paddingEnd="2sp"
-                            android:paddingStart="0sp"/>
+                            android:textSize="20sp"/>
 
                     </TableRow>
 
                     <TableRow
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="4">
 
-                        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                            xmlns:app="http://schemas.android.com/apk/res-auto"
+                        <FrameLayout
+                            android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_width="match_parent"
-                            android:gravity="bottom|center">
+                            android:layout_weight="4">
 
                             <TextView
                                 android:id="@+id/distance"
-                                android:layout_width="0dp"
+                                android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_gravity="end|top"
-                                android:layout_weight="4"
-                                android:gravity="bottom|center"
                                 android:text="0.0"
                                 android:textColor="@color/colorBlack"
                                 android:autoSizeTextType="uniform"
-                                android:autoSizeMinTextSize="40sp"
-                                android:autoSizeMaxTextSize="90sp"
-                                app:autoSizeStepGranularity="5sp"/>
+                                android:lines="1"
+                                android:gravity="bottom|center"/>
+
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:textSize="20sp"
+                            android:lines="1"
+                            android:text="@string/km"
+                            android:gravity="bottom|center"
+                            android:paddingBottom="10sp">
+                        </TextView>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5">
 
                             <TextView
-                                android:layout_width="0dp"
-                                android:layout_weight="1"
-                                android:layout_height="wrap_content"
-                                android:textSize="20sp"
-                                android:text="@string/km"
-                                android:gravity="bottom|center" />
-                            <TextView
                                 android:id="@+id/total_time"
-                                android:layout_width="0dp"
                                 android:layout_height="match_parent"
-                                android:layout_weight="5"
-                                android:gravity="bottom|center"
+                                android:layout_width="match_parent"
                                 android:text="0:00:00"
-                                android:autoSizeTextType="uniform"
-                                android:autoSizeMinTextSize="30sp"
-                                android:autoSizeMaxTextSize="60sp"
-                                app:autoSizeStepGranularity="5sp"
                                 android:textColor="@color/colorBlack"
-                                android:paddingEnd="2sp"/>
-                        </LinearLayout>
+                                android:autoSizeTextType="uniform"
+                                android:lines="1"
+                                android:gravity="bottom|center"/>
+                        </FrameLayout>
 
                     </TableRow>
 
                     <TableRow
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="1">
 
                         <TextView
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_gravity="end|top"
                             android:layout_weight="1"
                             android:gravity="bottom|center"
                             android:text="@string/distance"
@@ -179,17 +181,21 @@
                             android:text="@string/time"
                             android:textSize="20sp" />
                     </TableRow>
+
                     <TableRow
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
+
                         <View
                             android:layout_width="wrap_content"
                             android:layout_height="3dp"
                             android:layout_marginTop="5dp"
                             android:background="@android:color/darker_gray" />
+
                     </TableRow>
+
                 </TableLayout>
-            </LinearLayout>
+
         </LinearLayout>
 
         <com.google.android.gms.maps.MapView
@@ -205,6 +211,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/play_to_pause_animation"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
@@ -217,6 +224,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/ic_stop_white_24dp"
         android:background="@drawable/ic_launcher_background"
         android:layout_marginBottom="80dp"
@@ -232,6 +240,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/play_icon"
         android:layout_margin="16dp"
         android:layout_gravity="bottom|end"

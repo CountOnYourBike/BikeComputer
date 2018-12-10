@@ -50,6 +50,7 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -76,9 +77,9 @@ public class DeviceScanFragment extends Fragment {
     Button button_scan;
     Button button_stop;
     private View mView;
+    private MainActivity mainActivity;
 
-    public static final int REQUEST_ENABLE_BT = 1;
-    public static final int REQUEST_LOCATION_PERMISSION = 2;
+    public static final int REQUEST_LOCATION_PERMISSION = 1;
     // Stops scanning after 10 seconds.
     private static final long SCAN_PERIOD = 10000;
 
@@ -89,6 +90,7 @@ public class DeviceScanFragment extends Fragment {
     @Override
     public View onCreateView (@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
     @Nullable Bundle savedInstanceState) {
+        mainActivity = (MainActivity)getActivity();
 
         mView = inflater.inflate(R.layout.configuration_fragment, container, false);
 
@@ -101,29 +103,40 @@ public class DeviceScanFragment extends Fragment {
         button_scan = mView.findViewById(R.id.button_scan);
         button_stop = mView.findViewById(R.id.button_stop);
 
-        TextView connectedTextView = mView.findViewById(R.id.counter_connected_state);
-        if(((MainActivity)getActivity()).isConnected())
+        TextView connectedTextView = mView.findViewById(R.id.counter_connection_state);
+        if(mainActivity.isConnected())
             connectedTextView.setText(getText(R.string.connected));
         else
             connectedTextView.setText(getText(R.string.disconnected));
 
 
         // Use this check to determine whether BLE is supported on the device.
-        if (!getActivity().getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(getActivity().getApplicationContext(), R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            getActivity().getSupportFragmentManager().beginTransaction()
+        if (!mainActivity.getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(mainActivity.getApplicationContext(),
+                    R.string.ble_not_supported,
+                    Toast.LENGTH_SHORT)
+                    .show();
+            mainActivity.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance(), "home")
                     .addToBackStack("home")
                     .commit();
         }
 
         // checking permission for location services
-        if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+        if(ContextCompat.checkSelfPermission(mainActivity.getApplicationContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(mainActivity,
                     Manifest.permission.ACCESS_FINE_LOCATION))
-                        showExplanation(getString(R.string.permission_needed), getString(R.string.location_permission_message), Manifest.permission.ACCESS_FINE_LOCATION, REQUEST_LOCATION_PERMISSION);
+                showExplanation(
+                        getString(R.string.permission_needed),
+                        getString(R.string.location_permission_message),
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        REQUEST_LOCATION_PERMISSION);
             else
-                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+                ActivityCompat.requestPermissions(
+                        mainActivity,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION);
         }
 
         // Initializes a Bluetooth adapter.
@@ -132,8 +145,10 @@ public class DeviceScanFragment extends Fragment {
 
         // Checks if Bluetooth is supported on the device.
         if (mBTAdapter == null) {
-            Toast.makeText(getActivity().getApplicationContext(), R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
-            getActivity().getSupportFragmentManager().beginTransaction()
+            Toast.makeText(mainActivity.getApplicationContext(),
+                    R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT)
+                    .show();
+            mainActivity.getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance(), "home")
                     .addToBackStack("home")
                     .commit();
@@ -155,34 +170,37 @@ public class DeviceScanFragment extends Fragment {
     }
 
     private void checkIfLocationIsEnabled() {
-        LocationManager lm = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
-        boolean gps_enabled;
-        boolean network_enabled;
+        LocationManager lm =
+                (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
 
-        gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
-        network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+        boolean gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        boolean network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
         if(!gps_enabled && !network_enabled) {
             // notify user
             AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
             dialog.setMessage(getString(R.string.location_needed_for_searching_devices));
-            dialog.setPositiveButton(getString(R.string.open_location_settings), new DialogInterface.OnClickListener() {
+            dialog.setPositiveButton(getString(R.string.open_location_settings),
+                    new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
-                    // TODO Auto-generated method stub
-                    Intent myIntent = new Intent( Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    getActivity().startActivityForResult(myIntent, REQUEST_LOCATION_PERMISSION);
+                    Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    mainActivity.startActivityForResult(myIntent, REQUEST_LOCATION_PERMISSION);
                 }
             });
-            dialog.setNegativeButton(getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-
+            dialog.setNegativeButton(getString(android.R.string.cancel),
+                    new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface paramDialogInterface, int paramInt) {
                     // check if user didn't turned it
-                    LocationManager lm = (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
+                    LocationManager lm =
+                            (LocationManager)getContext().getSystemService(Context.LOCATION_SERVICE);
                     if(!lm.isProviderEnabled(LocationManager.GPS_PROVIDER) &&
-                    !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
-                        Toast.makeText(getContext(), getString(R.string.location_disabled_nothing_will_be_found), Toast.LENGTH_SHORT).show();
+                            !lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER))
+                        Toast.makeText(getContext(),
+                                getString(R.string.location_disabled_nothing_will_be_found),
+                                Toast.LENGTH_SHORT)
+                                .show();
                 }
             });
             dialog.show();
@@ -206,22 +224,22 @@ public class DeviceScanFragment extends Fragment {
     }
 
     private void requestPermission(String permissionName, int permissionRequestCode) {
-        ActivityCompat.requestPermissions(getActivity(),
+        ActivityCompat.requestPermissions(mainActivity,
                 new String[]{permissionName}, permissionRequestCode);
     }
 
     // Code to manage Service lifecycle.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e(TAG, "Unable to initialize Bluetooth");
-                getActivity().getSupportFragmentManager().beginTransaction()
+                mainActivity.getSupportFragmentManager().beginTransaction()
                         .replace(R.id.container, MainFragment.newInstance(), "home")
                         .addToBackStack("home")
                         .commit();
+                return;
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
@@ -236,7 +254,7 @@ public class DeviceScanFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+        mainActivity.registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
     }
 
     @Override
@@ -244,7 +262,7 @@ public class DeviceScanFragment extends Fragment {
         super.onPause();
         scanLeDevice(false);
         mBTArrayAdapter.clear();
-        getActivity().unregisterReceiver(mGattUpdateReceiver);
+        mainActivity.unregisterReceiver(mGattUpdateReceiver);
     }
 
     @Override
@@ -252,7 +270,7 @@ public class DeviceScanFragment extends Fragment {
         super.onDestroy();
         scanLeDevice(false);
         try {
-            getActivity().unregisterReceiver(mGattUpdateReceiver);
+            mainActivity.unregisterReceiver(mGattUpdateReceiver);
         } catch (IllegalArgumentException e) {
             // if the receiver is not registered
             e.printStackTrace();
@@ -267,57 +285,79 @@ public class DeviceScanFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            if (BluetoothLeService.ACTION_GATT_CONNECTING.equals(action)) {
-                Log.d(TAG, "Connecting");
-                mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
-                ((MainActivity)getActivity()).setConnected(false);
-                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.disconnected));
-                getActivity().invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                Log.d(TAG, "Connected");
-                mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-                ((MainActivity)getActivity()).setConnected(true);
-                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.connected));
-                getActivity().invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                Log.d(TAG, "Disconnected");
-                mView.findViewById(R.id.progress_bar).setVisibility(View.INVISIBLE);
-                ((MainActivity)getActivity()).setConnected(false);
-                ((TextView)(getActivity().findViewById(R.id.counter_connected_state))).setText(getResources().getText(R.string.disconnected));
-                getActivity().invalidateOptionsMenu();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Choose the CSC Measurement characteristics from all the supported services and characteristics
-                BluetoothGattService gattService = null;
-                List<BluetoothGattService> gattServiceList =  mBluetoothLeService.getSupportedGattServices();
-                for (BluetoothGattService service : gattServiceList) {
-                    if (service.getUuid().toString().equals(CYCLING_SPEED_AND_CADENCE_SERVICE)) {
-                        gattService = service;
-                        break;
+            TextView counterConnectionState = mView.findViewById(R.id.counter_connection_state);
+            ProgressBar progressBar = mView.findViewById(R.id.progress_bar);
+            if(action == null)
+                return;
+            switch (action) {
+                case BluetoothLeService.ACTION_GATT_CONNECTING:
+                    Log.d(TAG, "Connecting");
+                    progressBar.setVisibility(View.VISIBLE);
+                    mainActivity.setConnected(false);
+                    counterConnectionState.setText(getText(R.string.disconnected));
+                    mainActivity.invalidateOptionsMenu();
+                    break;
+
+                case BluetoothLeService.ACTION_GATT_CONNECTED:
+                    Log.d(TAG, "Connected");
+                    progressBar.setVisibility(View.INVISIBLE);
+                    mainActivity.setConnected(true);
+                    counterConnectionState.setText(getText(R.string.connected));
+                    mainActivity.invalidateOptionsMenu();
+                    break;
+
+                case BluetoothLeService.ACTION_GATT_DISCONNECTED:
+                    Log.d(TAG, "Disconnected");
+                    progressBar.setVisibility(View.INVISIBLE);
+                    mainActivity.setConnected(false);
+                    counterConnectionState.setText(getText(R.string.disconnected));
+                    mainActivity.invalidateOptionsMenu();
+                    break;
+
+                case BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED:
+                    // Find the CSC Service from all services
+                    BluetoothGattService gattService =
+                            getBluetoothGattService(CYCLING_SPEED_AND_CADENCE_SERVICE);
+                    if (gattService != null) {
+                        BluetoothGattCharacteristic characteristic =
+                                gattService.getCharacteristic(
+                                        UUID.fromString(CSC_MEASUREMENT_CHARACTERISTIC));
+                        final int characteristicProperties = characteristic.getProperties();
+                        if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                            mBluetoothLeService.readCharacteristic(characteristic);
+                        }
+                        if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                            mBluetoothLeService.setCharacteristicNotification(
+                                    characteristic, true);
+                        }
+                        Toast.makeText(mainActivity.getApplicationContext(),
+                                getString(R.string.successfully_connected),
+                                Toast.LENGTH_SHORT)
+                                .show();
                     }
-                }
-                if (gattService != null) {
-                    BluetoothGattCharacteristic characteristic = gattService.getCharacteristic(UUID.fromString(CSC_MEASUREMENT_CHARACTERISTICS));
-                    final int characteristicProperties = characteristic.getProperties();
-                    if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                        mBluetoothLeService.readCharacteristic(characteristic);
+                    else {
+                        Toast.makeText(mainActivity.getApplicationContext(),
+                                getString(R.string.csc_not_supported),
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        mBluetoothLeService.disconnect();
                     }
-                    if ((characteristicProperties | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                        mBluetoothLeService.setCharacteristicNotification(
-                                characteristic, true);
-                    }
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.successfully_connected), Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(getActivity().getApplicationContext(), getString(R.string.csc_not_supported), Toast.LENGTH_SHORT).show();
-                }
+                    break;
             }
         }
-    };
 
-    private Runnable runnable = new Runnable() {
-        @Override
-        public void run() {
-            stopScanning();
+        // Choose the given bluetooth service from all the supported services and characteristics
+        private BluetoothGattService getBluetoothGattService(String bluetoothServiceUUID) {
+            BluetoothGattService gattService = null;
+            List<BluetoothGattService> gattServiceList =
+                    mBluetoothLeService.getSupportedGattServices();
+            for (BluetoothGattService service : gattServiceList) {
+                if (service.getUuid().toString().equals(bluetoothServiceUUID)) {
+                    gattService = service;
+                    break;
+                }
+            }
+            return gattService;
         }
     };
 
@@ -329,15 +369,21 @@ public class DeviceScanFragment extends Fragment {
             startScanning();
         } else {
             stopScanning();
-            // it is removing activity created in mHandler.postDelayed
-            // as we don't want to stop new scanning 10 sec after old scan started
+            // it is removing activity created in mHandler.postDelayed (stopScanning)
+            // otherwise new scanning may be stopped faster than 10 seconds
             mHandler.removeCallbacks(runnable);
         }
     }
 
+    private Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            stopScanning();
+        }
+    };
+
     // Device scan callback.
     private ScanCallback mLeScanCallback = new ScanCallback() {
-
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
@@ -362,17 +408,20 @@ public class DeviceScanFragment extends Fragment {
 
     private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int position, long id) {
-
             if(!mBTAdapter.isEnabled()) {
-                Toast.makeText(getActivity().getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mainActivity.getBaseContext(),
+                        "Bluetooth not on",
+                        Toast.LENGTH_SHORT)
+                        .show();
                 return;
             }
+            TextView connectedTextView = mView.findViewById(R.id.counter_connection_state);
+            connectedTextView.setText(getString(R.string.connecting));
+            BluetoothDevice selectedDevice = (BluetoothDevice) av.getItemAtPosition(position);
 
-            //mBluetoothStatus.setText("Connecting...");
-            BluetoothDevice selectedDevice = (BluetoothDevice)av.getItemAtPosition(position);
-
-            Intent gattServiceIntent = new Intent(getActivity().getApplicationContext(), BluetoothLeService.class);
-            getActivity().bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+            Intent gattServiceIntent =
+                    new Intent(mainActivity.getApplicationContext(), BluetoothLeService.class);
+            mainActivity.bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
             mDeviceAddress = selectedDevice.getAddress();
             if (mScanning) {
                 scanLeDevice(false);
@@ -390,14 +439,17 @@ public class DeviceScanFragment extends Fragment {
         mView.findViewById(R.id.button_scan).setVisibility(View.VISIBLE);
         mView.findViewById(R.id.button_stop).setVisibility(View.INVISIBLE);
         mScanning = false;
-        getActivity().invalidateOptionsMenu();
+        mainActivity.invalidateOptionsMenu();
 
     }
 
     private void startScanning() {
         if(!mBTAdapter.isEnabled()) {
             mBTAdapter.enable();
-            Toast.makeText(getContext(), getString(R.string.turning_on_bluetooth), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(),
+                    getString(R.string.turning_on_bluetooth),
+                    Toast.LENGTH_SHORT)
+                    .show();
         }
         checkIfLocationIsEnabled();
         mBTArrayAdapter.clear();
@@ -407,22 +459,24 @@ public class DeviceScanFragment extends Fragment {
             mView.findViewById(R.id.progress_bar).setVisibility(View.VISIBLE);
             mView.findViewById(R.id.button_scan).setVisibility(View.INVISIBLE);
             mView.findViewById(R.id.button_stop).setVisibility(View.VISIBLE);
+            ((TextView) mView.findViewById(R.id.counter_connection_state))
+                    .setText(getString(R.string.disconnected));
             mScanning = true;
-            getActivity().invalidateOptionsMenu();
+            mainActivity.invalidateOptionsMenu();
         }
     }
     
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
-        private LayoutInflater mInflator;
+        private LayoutInflater mInflater;
 
-        public LeDeviceListAdapter() {
+        LeDeviceListAdapter() {
             super();
             mLeDevices = new ArrayList<>();
-            mInflator = DeviceScanFragment.this.getLayoutInflater();
+            mInflater = DeviceScanFragment.this.getLayoutInflater();
         }
 
-        public void addDevice(BluetoothDevice device) {
+        void addDevice(BluetoothDevice device) {
             if(!mLeDevices.contains(device)) {
                 mLeDevices.add(device);
             }
@@ -456,7 +510,7 @@ public class DeviceScanFragment extends Fragment {
             ViewHolder viewHolder;
             // General ListView optimization code.
             if (view == null) {
-                view = mInflator.inflate(R.layout.listitem_device, null);
+                view = mInflater.inflate(R.layout.listitem_device, null);
                 viewHolder = new ViewHolder();
                 viewHolder.
                         deviceAddress = view.findViewById(R.id.device_address);
@@ -477,12 +531,13 @@ public class DeviceScanFragment extends Fragment {
             return view;
         }
     }
+
     static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
     }
 
-    // make filter to find only this intents with broadcast receiver
+    // make filter to listen only for that types of intent with broadcast receiver
     private static IntentFilter makeGattUpdateIntentFilter() {
         final IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);

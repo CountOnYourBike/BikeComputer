@@ -2,9 +2,9 @@
 <resources>
 
     <string-array name="scale_wheel_sizes">
-        <item>@string/circ_systems</item>
-        <item>@string/inch_systems</item>
-        <item>@string/ETRTO_systems</item>
+        <item>@string/circ_system</item>
+        <item>@string/inch_system</item>
+        <item>@string/ETRTO_system</item>
     </string-array>
 
 </resources>

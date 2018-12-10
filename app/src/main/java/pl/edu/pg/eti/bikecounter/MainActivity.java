@@ -1,10 +1,8 @@
 package pl.edu.pg.eti.bikecounter;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Handler;
@@ -17,14 +15,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.Locale;
 
-import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_ENABLE_BT;
 import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,20 +33,20 @@ public class MainActivity extends AppCompatActivity {
     private boolean mConnected = false;
     private boolean mPaused = false;
     private boolean mStarted = false;
-    //TODO: Obsłużyć czas przejazdu
+    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
+    protected SharedPreferences mSharedPreferences;
+    protected SharedPreferences.Editor mEditor;
+
     // time of actual ride (since play pressed)
     private long mRideTime = 0;
     // time without actual ride
     private long mTime = 0;
-
-
     long startTime = 0;
 
+    private static final String DEFAULT_WHEEL_CIRC = "2100 mm";
 
-    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
-    protected SharedPreferences mSharedPreferences;
-    protected SharedPreferences.Editor mEditor;
-    //runs without a timer by reposting this handler at the end of the runnable
+
+    // runs without a timer by re-posting this handler at the end of the runnable
     Handler timerHandler = new Handler();
     Runnable timerRunnable = new Runnable() {
 
@@ -64,8 +60,17 @@ public class MainActivity extends AppCompatActivity {
             minutes = minutes % 60;
             seconds = seconds % 60;
 
-
-            ((TextView)findViewById(R.id.total_time)).setText(String.format(Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
+            TextView totalTimeTextView = findViewById(R.id.total_time);
+            TextView averageSpeedTextView = findViewById(R.id.average_speed);
+            if(totalTimeTextView != null) {
+                totalTimeTextView.setText(String.format(
+                        Locale.ENGLISH, "%d:%02d:%02d", hours, minutes, seconds));
+                double averageSpeed = getDistance() / getTotalTimeInHours();
+                if(Double.isNaN(averageSpeed) || Double.isInfinite(averageSpeed))
+                    averageSpeedTextView.setText("0.00");
+                else
+                    averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
+            }
 
             timerHandler.postDelayed(this, 500);
         }
@@ -77,12 +82,12 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         initPreferences();
         initViewObject();
 
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
+            getSupportFragmentManager()
+                    .beginTransaction()
                     .replace(R.id.container, MainFragment.newInstance())
                     .addToBackStack("home")
                     .commit();
@@ -91,20 +96,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onStop(){
-        mEditor.putBoolean("FirstUse",false);
-        mEditor.commit();
-        super.onStop();
-    }
-
     private void initPreferences() {
         mSharedPreferences = getSharedPreferences(PREFERENCES,Context.MODE_PRIVATE);
         mEditor = mSharedPreferences.edit();
 
+        String wheelSizeSystem =
+                mSharedPreferences.getString("WheelSizeSystem", null);
+        String wheelSizeString = (mSharedPreferences.getString("WheelSize", null));
+        if(wheelSizeString == null || wheelSizeSystem == null) {
+            wheelSizeSystem = getString(R.string.circ_system);
+            wheelSizeString = DEFAULT_WHEEL_CIRC;
+        }
+        try {
+            wheelCirc = Wheel.getCircValue(getApplicationContext(), wheelSizeSystem, wheelSizeString);
+        } catch (IllegalArgumentException ex) {
+            wheelCirc = Integer.parseInt(DEFAULT_WHEEL_CIRC.split(" ")[0]);
+            wheelSizeSystem = getString(R.string.circ_system);
+            wheelSizeString = DEFAULT_WHEEL_CIRC;
+        }
 
-        wheelCirc = Double.valueOf(mSharedPreferences.getString("wheelCirc","2100"));
-        mSharedPreferences.getString("WheelSizeScale",getString(R.string.circ_systems));
+        mEditor.putString("WheelSizeSystem", wheelSizeSystem);
+        mEditor.putString("WheelSize", wheelSizeString);
+        mEditor.apply();
     }
 
     @Override
@@ -113,16 +126,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.navigation_menu, menu);
-        return true;
-    }
-
-    @Override
     public void onBackPressed() {
         FragmentManager manager = getSupportFragmentManager();
-        if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
+        if(mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
         } else if(manager.getBackStackEntryCount() >= 2){
             super.onBackPressed();
@@ -141,17 +147,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void initViewObject(){
         mDrawerLayout = findViewById(R.id.activity_main);
-        mActionBarDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,R.string.open,R.string.close);
+        mActionBarDrawerToggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, R.string.open, R.string.close);
 
         mDrawerLayout.addDrawerListener(mActionBarDrawerToggle);
         mActionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mNavigationView = findViewById(R.id.navigation_view);
-        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        mNavigationView.setNavigationItemSelectedListener(
+                new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
@@ -161,34 +168,45 @@ public class MainActivity extends AppCompatActivity {
                 // close drawer when item is tapped
                 mDrawerLayout.closeDrawers();
 
-
+                String lastOpenedFragmentName = getSupportFragmentManager().getBackStackEntryAt(
+                        getSupportFragmentManager().getBackStackEntryCount()-1).getName();
+                if(lastOpenedFragmentName == null) {
+                    lastOpenedFragmentName = "";
+                }
                 switch (id) {
                     case R.id.home:
-                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("home")) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, MainFragment.newInstance(), "home")
+                        if(!lastOpenedFragmentName.equals("home")) {
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.container, MainFragment.newInstance(),
+                                            "home")
                                     .addToBackStack("home")
                                     .commit();
                         }
                         break;
                     case R.id.settings:
-                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("settings")) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, SettingsFragment.newInstance(), "settings")
+                        if(!lastOpenedFragmentName.equals("settings")) {
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.container, SettingsFragment.newInstance(),
+                                            "settings")
                                     .addToBackStack("settings")
                                     .commit();
                         }
                         break;
                     case R.id.configuration:
-                        if(!getSupportFragmentManager().getBackStackEntryAt(getSupportFragmentManager().getBackStackEntryCount()-1).getName().equals("configuration")) {
-                            getSupportFragmentManager().beginTransaction()
-                                    .replace(R.id.container, DeviceScanFragment.newInstance(), "configuration")
+                        if(!lastOpenedFragmentName.equals("configuration")) {
+                            getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .replace(R.id.container, DeviceScanFragment.newInstance(),
+                                            "configuration")
                                     .addToBackStack("configuration")
                                     .commit();
                         }
                         break;
                     case R.id.exit:
-                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        AlertDialog.Builder builder =
+                                new AlertDialog.Builder(MainActivity.this);
                         builder.setTitle(getString(R.string.exit))
                                 .setMessage(getString(R.string.really_want_to_exit))
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -211,8 +229,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void setWheelCirc(Double wheelCirc) {
         this.wheelCirc = wheelCirc;
-        mEditor.putString("wheelCirc",Double.toString(wheelCirc));
-        mEditor.commit();
+        mEditor.putString("wheelCirc", Double.toString(wheelCirc));
+        mEditor.apply();
     }
 
     public boolean isConnected() {
@@ -224,11 +242,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public double getDistance() {
-        return Math.floor(distance*100)/100;
-    }
-
-    public void setDistance(int distance) {
-        this.distance = distance;
+        return distance;
     }
 
     public void addToDistance(double distanceToAdd) {
@@ -244,8 +258,7 @@ public class MainActivity extends AppCompatActivity {
         if(isStarted()) {
             startTime = System.currentTimeMillis();
             timerHandler.postDelayed(timerRunnable, 0);
-        }
-        else {
+        } else {
             removeTimeCallback();
             mRideTime = 0;
             mTime = 0;
@@ -265,54 +278,47 @@ public class MainActivity extends AppCompatActivity {
         this.mPaused = mPaused;
         if(isPaused()) {
             removeTimeCallback();
-            mRideTime = getTotalTime();
         }
+        else
+            mRideTime = getTotalTime();
     }
 
-    private long getTotalTime() {
+    long getTotalTime() {
         return mTime + mRideTime;
     }
 
     public double getTotalTimeInHours() {
-        double totalTimeInHours = (double)getTotalTime();
+        double totalTimeInHours = (double) getTotalTime();
+        // so far we get time in milliseconds, so we have to divide it by 1000*60*60
         totalTimeInHours /= 3600000.;
         return totalTimeInHours;
     }
 
-    //it works only in activity, not in fragment
+    // results are handled in activity, not in fragment,
+    // it will catch all fragments request permission results
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[],
+                                           @NonNull int[] grantResults) {
         switch (requestCode) {
-            case REQUEST_LOCATION_PERMISSION: {
+            case REQUEST_LOCATION_PERMISSION:
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted
-                    Toast.makeText(getBaseContext(), getString(R.string.permission_granted), Toast.LENGTH_SHORT).show();
-                    getSupportFragmentManager().beginTransaction().replace(R.id.container, MainFragment.newInstance(), "home")
-                            .commitNow();
+                    Toast.makeText(getBaseContext(),
+                            getString(R.string.permission_granted),
+                            Toast.LENGTH_SHORT)
+                            .show();
                 } else {
                     // permission denied
-                    Toast.makeText(getBaseContext(), getString(R.string.location_permission_denied), Toast.LENGTH_SHORT).show();
-                    //onBackPressed();
+                    Toast.makeText(getBaseContext(),
+                            getString(R.string.location_permission_denied),
+                            Toast.LENGTH_SHORT)
+                            .show();
                 }
                 break;
-            }
+            default:
+                break;
         }
-    }
-
-    //it works only in activity, not in fragment, it will catch all fragments activityResults
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // User chose not to enable Bluetooth.
-        if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
-            Toast.makeText(getBaseContext(),getString(R.string.without_bluetooth_unable_to_search), Toast.LENGTH_SHORT).show();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, MainFragment.newInstance(), "home")
-                    .commitNow();
-            return;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
