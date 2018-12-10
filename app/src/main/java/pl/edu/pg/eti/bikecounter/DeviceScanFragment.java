@@ -340,6 +340,7 @@ public class DeviceScanFragment extends Fragment {
                                 getString(R.string.csc_not_supported),
                                 Toast.LENGTH_SHORT)
                                 .show();
+                        mBluetoothLeService.disconnect();
                     }
                     break;
             }

@@ -297,8 +297,7 @@ public class BluetoothLeService extends Service {
         }
         mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
 
-        // This is specific to Heart Rate Measurement.
-        // TODO: zmienić ten komentarz XD
+        // This is specific to Cycling Speed and Cadence.
         if (UUID_CSC_MEASUREMENT_CHARACTERISTIC.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(CyclingGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
