@@ -49,6 +49,7 @@ public class MainFragment extends Fragment {
     private TextView speedTextView;
     private TextView averageSpeedTextView;
     private TextView distanceTextView;
+    private TextView totalTimeTextView;
     MapView mMapView;
     private GoogleMap googleMap;
     boolean mLocationPermissionGranted;
@@ -112,10 +113,31 @@ public class MainFragment extends Fragment {
         speedTextView = rootView.findViewById(R.id.speed);
         averageSpeedTextView = rootView.findViewById(R.id.average_speed);
         distanceTextView = rootView.findViewById(R.id.distance);
+        totalTimeTextView = rootView.findViewById(R.id.total_time);
 
         final FloatingActionButton fabPlay = rootView.findViewById(R.id.fabPlay);
         final FloatingActionButton fabPause = rootView.findViewById(R.id.fabPause);
         final FloatingActionButton fabStop = rootView.findViewById(R.id.fabStop);
+
+        if(mainActivity.isStarted()) {
+            rootView.findViewById(R.id.fabStop).setVisibility(View.VISIBLE);
+            if(mainActivity.isPaused()) {
+                fabPause.setImageDrawable(
+                        getResources().getDrawable(R.drawable.play_to_pause_animation, null));
+                rootView.findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.fabPause).setVisibility(View.INVISIBLE);
+            } else {
+                fabPlay.setImageDrawable(
+                        getResources().getDrawable(R.drawable.pause_to_play_animation, null));
+                rootView.findViewById(R.id.fabPlay).setVisibility(View.INVISIBLE);
+                rootView.findViewById(R.id.fabPause).setVisibility(View.VISIBLE);
+            }
+        } else {
+            rootView.findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.fabPause).setVisibility(View.INVISIBLE);
+            rootView.findViewById(R.id.fabStop).setVisibility(View.INVISIBLE);
+        }
+        rootView.invalidate();
 
         final Animation fabOpen, fabClose;
         fabOpen = AnimationUtils.loadAnimation(getContext(), R.anim.fab_open);
@@ -145,6 +167,8 @@ public class MainFragment extends Fragment {
             public void onClick(View view) {
                 getView().findViewById(R.id.fabPause).setVisibility(View.INVISIBLE);
                 getView().findViewById(R.id.fabPlay).setVisibility(View.VISIBLE);
+                fabPause.setImageDrawable(
+                        getResources().getDrawable(R.drawable.play_to_pause_animation, null));
                 Drawable playDrawable = fabPlay.getDrawable();
                 ((Animatable) playDrawable).start();
                 mainActivity.setPaused(true);
@@ -202,8 +226,6 @@ public class MainFragment extends Fragment {
         super.onPause();
         stopLocationUpdates();
         mainActivity.unregisterReceiver(mGattUpdateReceiver);
-        stopLocationUpdates();
-        mainActivity.removeTimeCallback();
     }
 
     @Override
@@ -254,7 +276,7 @@ public class MainFragment extends Fragment {
                 googleMap.getUiSettings().setMyLocationButtonEnabled(false);
             }
         } catch (SecurityException e)  {
-            Log.e("Exception: %s", e.getMessage());
+            Log.e(TAG, "Exception: " + e.getMessage());
         }
     }
 
@@ -323,12 +345,21 @@ public class MainFragment extends Fragment {
                     Locale.ENGLISH, "%.2f", measurement.getSpeed(mainActivity.getWheelCirc())));
         }
         double averageSpeed = mainActivity.getDistance() / mainActivity.getTotalTimeInHours();
-        if(Double.isNaN(averageSpeed))
+        if(Double.isNaN(averageSpeed) || Double.isInfinite(averageSpeed))
             averageSpeedTextView.setText("0.00");
         else
             averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
         distanceTextView.setText(String.format(
                 Locale.ENGLISH, "%.2f", mainActivity.getDistance()));
+
+        long millis = mainActivity.getTotalTime();
+        int seconds = (int) (millis / 1000);
+        int minutes = seconds / 60;
+        int hours = minutes / 60;
+        minutes = minutes % 60;
+        seconds = seconds % 60;
+        totalTimeTextView.setText(String.format(
+                Locale.ENGLISH, "%d:%02d:%02d", hours, minutes, seconds));
         mainActivity.invalidateOptionsMenu();
     }
 

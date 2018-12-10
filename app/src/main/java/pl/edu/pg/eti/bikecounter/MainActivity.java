@@ -60,9 +60,17 @@ public class MainActivity extends AppCompatActivity {
             minutes = minutes % 60;
             seconds = seconds % 60;
 
-            ((TextView) findViewById(R.id.total_time))
-                    .setText(String.format(
-                            Locale.ENGLISH,"%d:%02d:%02d", hours, minutes, seconds));
+            TextView totalTimeTextView = findViewById(R.id.total_time);
+            TextView averageSpeedTextView = findViewById(R.id.average_speed);
+            if(totalTimeTextView != null) {
+                totalTimeTextView.setText(String.format(
+                        Locale.ENGLISH, "%d:%02d:%02d", hours, minutes, seconds));
+                double averageSpeed = getDistance() / getTotalTimeInHours();
+                if(Double.isNaN(averageSpeed) || Double.isInfinite(averageSpeed))
+                    averageSpeedTextView.setText("0.00");
+                else
+                    averageSpeedTextView.setText(String.format(Locale.ENGLISH, "%.2f", averageSpeed));
+            }
 
             timerHandler.postDelayed(this, 500);
         }
@@ -270,16 +278,17 @@ public class MainActivity extends AppCompatActivity {
         this.mPaused = mPaused;
         if(isPaused()) {
             removeTimeCallback();
-            mRideTime = getTotalTime();
         }
+        else
+            mRideTime = getTotalTime();
     }
 
-    private long getTotalTime() {
+    long getTotalTime() {
         return mTime + mRideTime;
     }
 
     public double getTotalTimeInHours() {
-        double totalTimeInHours = Double.longBitsToDouble(getTotalTime());
+        double totalTimeInHours = (double) getTotalTime();
         // so far we get time in milliseconds, so we have to divide it by 1000*60*60
         totalTimeInHours /= 3600000.;
         return totalTimeInHours;
