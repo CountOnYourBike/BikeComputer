@@ -72,8 +72,7 @@ public class SettingsFragment extends Fragment implements AdapterView.OnItemSele
         String wheelSizeString =
                 mainActivity.mSharedPreferences.getString("WheelSize", ValueList.get(0));
         if(ValueList.indexOf(wheelSizeString) == -1)
-            throw new IllegalArgumentException("Such wheel size value in system " + wheelSizeSystem +
-                    " not found: " + wheelSizeString);
+            wheelSizeString = ValueList.get(0);
         mSpinner.setSelection(ValueList.indexOf(wheelSizeString));
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
