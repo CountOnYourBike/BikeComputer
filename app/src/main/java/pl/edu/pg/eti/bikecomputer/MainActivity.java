@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.bikecounter;
+package pl.edu.pg.eti.bikecomputer;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -21,7 +21,7 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
-import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
+import static pl.edu.pg.eti.bikecomputer.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private boolean mConnected = false;
     private boolean mPaused = false;
     private boolean mStarted = false;
-    private static final String PREFERENCES = "pl.edu.pg.eti.bikecounter.preferences";
+    private static final String PREFERENCES = "pl.edu.pg.eti.bikecomputer.preferences";
     protected SharedPreferences mSharedPreferences;
     protected SharedPreferences.Editor mEditor;
 

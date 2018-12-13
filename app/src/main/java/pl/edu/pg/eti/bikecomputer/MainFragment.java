@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.bikecounter;
+package pl.edu.pg.eti.bikecomputer;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -42,7 +42,7 @@ import com.google.android.gms.location.LocationServices;
 import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static pl.edu.pg.eti.bikecounter.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
+import static pl.edu.pg.eti.bikecomputer.DeviceScanFragment.REQUEST_LOCATION_PERMISSION;
 
 public class MainFragment extends Fragment {
 

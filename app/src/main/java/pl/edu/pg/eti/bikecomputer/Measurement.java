@@ -1,4 +1,4 @@
-package pl.edu.pg.eti.bikecounter;
+package pl.edu.pg.eti.bikecomputer;
 
 import android.support.annotation.NonNull;
 

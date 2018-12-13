@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pl.edu.pg.eti.bikecounter;
+package pl.edu.pg.eti.bikecomputer;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -53,17 +53,17 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTED = 2;
 
     public final static String ACTION_GATT_CONNECTED =
-            "pl.edu.pg.eti.bikecounter.ACTION_GATT_CONNECTED";
+            "pl.edu.pg.eti.bikecomputer.ACTION_GATT_CONNECTED";
     public final static String ACTION_GATT_DISCONNECTED =
-            "pl.edu.pg.eti.bikecounter.ACTION_GATT_DISCONNECTED";
+            "pl.edu.pg.eti.bikecomputer.ACTION_GATT_DISCONNECTED";
     public final static String ACTION_GATT_CONNECTING =
-            "pl.edu.pg.eti.bikecounter.ACTION_GATT_CONNECTING";
+            "pl.edu.pg.eti.bikecomputer.ACTION_GATT_CONNECTING";
     public final static String ACTION_GATT_SERVICES_DISCOVERED =
-            "pl.edu.pg.eti.bikecounter.ACTION_GATT_SERVICES_DISCOVERED";
+            "pl.edu.pg.eti.bikecomputer.ACTION_GATT_SERVICES_DISCOVERED";
     public final static String ACTION_DATA_AVAILABLE =
-            "pl.edu.pg.eti.bikecounter.ACTION_DATA_AVAILABLE";
+            "pl.edu.pg.eti.bikecomputer.ACTION_DATA_AVAILABLE";
     public final static String EXTRA_DATA =
-            "pl.edu.pg.eti.bikecounter.EXTRA_DATA";
+            "pl.edu.pg.eti.bikecomputer.EXTRA_DATA";
 
     public final static UUID UUID_CSC_MEASUREMENT_CHARACTERISTIC =
             UUID.fromString(CyclingGattAttributes.CSC_MEASUREMENT_CHARACTERISTIC);

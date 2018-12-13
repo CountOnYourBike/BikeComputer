@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package pl.edu.pg.eti.bikecounter;
+package pl.edu.pg.eti.bikecomputer;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static android.content.Context.BIND_AUTO_CREATE;
-import static pl.edu.pg.eti.bikecounter.CyclingGattAttributes.*;
+import static pl.edu.pg.eti.bikecomputer.CyclingGattAttributes.*;
 
 
 /**
